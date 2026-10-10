@@ -27,7 +27,7 @@ struct EmulatorTweaksSettingsSection: View {
         guard let status = store.status else {
             return store.isBusy ? "Checking whether appearance tweaks are available…" : "Appearance status is unavailable. Refresh to check your SDK."
         }
-        if status.state == "original" { return "Want to see pretty emulator icons in the Dock?" }
+        if status.state == "original" { return "Want to see pretty Android emulator icons in the macOS Dock?" }
         if isHealthyPatch { return "Appearance tweaks are enabled. Restart running emulators to see their icons and names." }
         return status.summary
     }
