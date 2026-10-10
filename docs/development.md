@@ -194,10 +194,16 @@ Run `scripts/test.sh ADBuddyTests.EmulatorTweaksTests,ADBuddyTests.EmulatorCreat
 and `scripts/build_and_run.sh --verify`. Confirm the packaged archive hash matches
 `bundled-dependencies.json` and `codesign --verify --deep --strict dist/ADBuddy.app`.
 
-In Settings → Emulators, verify status never patches the SDK. Verify the installed emulator version is explained. Open Learn More and verify the GitHub project link and bundled With/Without
-images, confirming all content fits without scrolling and accessible descriptions. Check the sheet’s final Apply is disabled
-for unsupported builds and until signing is acknowledged. On the supported Apple Silicon build, cancel the Apply sheet
-and verify no change; acknowledge signing and apply; verify status, restart a test
-AVD, and check its Dock/Cmd-Tab name and device icon. Restore via the app and compare
-the SDK executable with the original vendor hash and signature. Reapply only with
-explicit consent. Keep backup generations and unrelated running devices intact.
+In Settings → Emulators, verify status and refresh never patch the SDK. Check the
+appearance tag, support/error state, and version/backup information under Details.
+Open Learn More via the button or tag. Verify the linked without/with comparison,
+accessible image descriptions, and that all content fits without scrolling.
+
+Healthy applied tweaks must show Done and Repair without signing controls.
+Repair must reopen fresh signing consent. Original or unhealthy patches must show
+Make Pretty disabled until consent, and unsupported builds must keep it disabled.
+On the supported Apple Silicon build, cancel and verify no SDK change; acknowledge
+signing and apply; restart a test AVD and check its Dock/Cmd-Tab name and device icon.
+Restore via the app and compare the SDK executable with the original vendor hash
+and signature. Reapply only with explicit consent. Keep backup generations and
+unrelated running devices intact.

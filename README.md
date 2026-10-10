@@ -169,22 +169,23 @@ Settings → Emulators supports an explicit Node executable override.
 
 ## macOS emulator appearance
 
-Settings → Emulators offers **Learn More…** and **Restore Original** using
-bundled `@androperator/emulator-macos-tweaks` 1.0.2. Healthy applied tweaks open an info-only preview with Done and a separate Repair action.
-Repair reopens the signing acknowledgment before reapplying. The customization sheet shows
-a compact With/Without app-switcher comparison and keeps the signing acknowledgment visible
-below the preview, explains the installed SDK emulator version, and links to the
-open-source project on GitHub. Applying requires an explicit
-acknowledgment: Google's signature is replaced by a local ad-hoc signature while
-retaining entitlements and hardened runtime. Restore reinstates the exact original
-and its Google signature. No developer certificate or private key is used.
+Settings → Emulators shows an `ugly` or `pretty` appearance tag and offers
+**Learn More…** using bundled `@androperator/emulator-macos-tweaks` 1.0.2.
+The preview compares original and tweaked icons and links to the open-source
+project. Version and backup information live under **Details**.
+
+Healthy applied tweaks open an info-only preview with **Done** and **Repair…**.
+Applying or repairing requires a fresh signing acknowledgment before **Make Pretty**:
+Google's signature is replaced by a local ad-hoc signature while retaining
+entitlements and hardened runtime. **Restore Original** reinstates the exact
+original and its Google signature. No developer certificate or private key is used.
 
 The patch affects all launches through the selected SDK, including Terminal and
 Android Studio. Restart running emulators to see changes. Version 1.0.2 supports
 Android Emulator 37.1.11 build 15917651 on Apple Silicon; unknown builds are refused.
 Node.js 22+ is required for tweaks, including later emulator launches with AVD names.
 The existing Node executable setting is shared with creation and deletion (24+).
-If that Node installation moves, select the new Node and apply again.
+If that Node installation moves, select the new Node and use **Repair…** to apply again.
 
 Backups are shared with the standalone CLI in
 `~/Library/Application Support/emulator-icon-macos/backups`. Keep them in place
