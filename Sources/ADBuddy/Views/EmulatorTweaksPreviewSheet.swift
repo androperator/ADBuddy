@@ -22,9 +22,9 @@ struct EmulatorTweaksPreviewSheet: View {
                     .font(.callout).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack(alignment: .top, spacing: 16) {
-                    preview("Without", tag: "ugly", color: .orange, filename: "emulator-app-switcher-before",
+                    preview("without", tag: "ugly", color: .orange, filename: "emulator-app-switcher-before",
                             description: "Three identical circular Android emulator icons with the generic qemu-system-aarch64 label.")
-                    preview("With", tag: "pretty", color: .green, filename: "emulator-app-switcher-after",
+                    preview("with", tag: "pretty", color: .green, filename: "emulator-app-switcher-after",
                             description: "Distinct tablet, phone and watch icons with the selected phone labeled Pixel_9.")
                 }
                 Text("Applies to every launch through this Android SDK, including Terminal and Android Studio. Restart running emulators to see the change. Supported builds only; Node.js must remain installed for AVD naming.")
