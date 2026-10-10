@@ -91,7 +91,7 @@ struct MainWindowSizer: NSViewRepresentable {
                     for: window.minSize.width
                 )
 
-                // Keep the window vertically fitted to the visible rows while preserving width.
+                // Start with a compact height while allowing the list to expand with the window.
                 window.contentMinSize = CGSize(
                     width: DeviceListLayout.windowWidth,
                     height: 0
@@ -99,12 +99,12 @@ struct MainWindowSizer: NSViewRepresentable {
                 window.minSize = CGSize(width: minimumFrameWidth, height: 0)
                 window.setContentSize(contentSize)
                 window.contentMaxSize = CGSize(
-                    width: .greatestFiniteMagnitude,
-                    height: contentSize.height
+                    width: CGFloat.greatestFiniteMagnitude,
+                    height: CGFloat.greatestFiniteMagnitude
                 )
                 window.maxSize = CGSize(
-                    width: .greatestFiniteMagnitude,
-                    height: frameSize.height
+                    width: CGFloat.greatestFiniteMagnitude,
+                    height: CGFloat.greatestFiniteMagnitude
                 )
                 window.contentMinSize = CGSize(
                     width: DeviceListLayout.windowWidth,
