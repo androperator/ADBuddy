@@ -465,11 +465,13 @@ final class DeviceStoreTests: XCTestCase {
     }
 
     private func waitForScreenshotFeedback(in store: DeviceStore) async {
-        for _ in 0..<100 {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .seconds(5))
+        while clock.now < deadline {
             if store.screenshotFeedback != nil {
                 return
             }
-            await Task.yield()
+            try? await Task.sleep(for: .milliseconds(10))
         }
         XCTFail("Timed out waiting for screenshot feedback.")
     }
