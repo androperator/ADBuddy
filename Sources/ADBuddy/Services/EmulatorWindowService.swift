@@ -89,8 +89,9 @@ enum EmulatorHostProcessParser {
 
             let command = String(columns[1])
             guard command.contains("/emulator/qemu/"),
-                  command.contains("qemu-system"),
-                  let virtualDeviceName = virtualDeviceName(in: command) else {
+                  let virtualDeviceName = virtualDeviceName(in: command),
+                  command.contains("qemu-system") ||
+                    command.contains("/emulator/qemu/darwin-aarch64/\(virtualDeviceName) ") else {
                 continue
             }
 

@@ -19,6 +19,21 @@ final class EmulatorWindowServiceTests: XCTestCase {
         ])
     }
 
+    func testRecognizesNamedAVDExecutablesInManagedSDKCopies() {
+        let presentations = EmulatorHostProcessParser.parse("""
+        101 /Users/dev/Library/Application Support/emulator-icon-macos/backups/generation/launches/phone/sdk/emulator/qemu/darwin-aarch64/Pixel_9 -avd Pixel_9
+        102 /cache/sdk/emulator/qemu/darwin-aarch64/Wear_API_35 @Wear_API_35
+        103 /cache/sdk/emulator/qemu/darwin-aarch64/Studio_Device -avd Studio_Device -qt-hide-window
+        104 /cache/sdk/emulator/qemu/darwin-aarch64/Other_App -avd Pixel_9
+        105 /other/Pixel_9 -avd Pixel_9
+        """)
+        XCTAssertEqual(presentations, [
+            "Pixel_9": .standalone(processIdentifier: 101),
+            "Wear_API_35": .standalone(processIdentifier: 102),
+            "Studio_Device": .embeddedInAndroidStudio,
+        ])
+    }
+
     func testMapsStandaloneEmbeddedAndHeadlessEmulatorProcesses() async {
         let runner = EmulatorWindowProcessRunner(
             result: successfulResult(
