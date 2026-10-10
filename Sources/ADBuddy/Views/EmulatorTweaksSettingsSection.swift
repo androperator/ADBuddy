@@ -39,16 +39,15 @@ struct EmulatorTweaksSettingsSection: View {
 
     var body: some View {
         Section {
-            HStack {
+            VStack(alignment: .leading, spacing: 12) {
                 Text(supportDescription)
                     .font(.callout).foregroundStyle(.secondary)
-                Button("Learn More", action: showPreview)
-                    .buttonStyle(.link)
-            }.disabled(store.isBusy)
-            if store.status?.canRestore == true {
                 HStack {
-                    Button("Restore Original") {
-                        Task { await store.run(.restore, nodePath: nodePath) }
+                    Button("Learn More…", action: showPreview)
+                    if store.status?.canRestore == true {
+                        Button("Restore Original") {
+                            Task { await store.run(.restore, nodePath: nodePath) }
+                        }
                     }
                 }.disabled(store.isBusy)
             }
