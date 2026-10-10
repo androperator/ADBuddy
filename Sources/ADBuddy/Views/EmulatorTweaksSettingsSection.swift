@@ -6,39 +6,82 @@ struct EmulatorTweaksSettingsSection: View {
     @State private var showsSigningConfirmation = false
     @State private var acceptsSigning = false
 
+    private var isHealthyPatch: Bool {
+        guard let status = store.status else { return false }
+        return status.state == "patched" && status.namingHealthy != false && status.runtimeHealthy != false
+    }
+
+    private var appearanceTag: String {
+        if isHealthyPatch { return "pretty" }
+        if store.status?.state == "original" { return "ugly" }
+        if store.status == nil && store.isBusy { return "checking" }
+        return store.status == nil || store.status?.state == "patched" ? "needs attention" : "unsupported"
+    }
+
+    private var tagColor: Color {
+        if isHealthyPatch { return .green }
+        return store.status?.state == "original" ? .orange : .secondary
+    }
+
+    private var supportDescription: String {
+        guard let status = store.status else {
+            return store.isBusy ? "Checking whether appearance tweaks are available…" : "Appearance status is unavailable. Refresh to check your SDK."
+        }
+        if status.state == "original" { return "Your emulator supports custom icons and device names. Tweaks are not enabled." }
+        if isHealthyPatch { return "Appearance tweaks are enabled. Restart running emulators to see their icons and names." }
+        return status.summary
+    }
+
     var body: some View {
-        Section("macOS emulator appearance") {
-            Text(store.status?.summary ?? "Check the SDK to see whether tweaks are available.")
+        Section {
+            Text(supportDescription)
                 .font(.callout).foregroundStyle(.secondary)
-            if let revision = store.status?.revision {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Installed emulator software: \(revision)")
-                    Text("This is the Android SDK’s emulator version. It determines whether appearance tweaks are supported.")
-                        .foregroundStyle(.secondary)
-                }.font(.caption)
-            }
             HStack {
-                Button("Refresh Status") {
-                    Task { await store.run(.status, nodePath: nodePath) }
-                }
                 Button("Learn More…") {
                     acceptsSigning = false
                     showsSigningConfirmation = true
                 }
-                Button("Restore Original") {
-                    Task { await store.run(.restore, nodePath: nodePath) }
-                }.disabled(store.status?.canRestore != true)
-                if store.isBusy { ProgressView().controlSize(.small) }
+                if store.status?.canRestore == true {
+                    Button("Restore Original") {
+                        Task { await store.run(.restore, nodePath: nodePath) }
+                    }
+                }
             }.disabled(store.isBusy)
             if let message = store.message {
                 Text(message).font(.callout).textSelection(.enabled)
             }
-            if let backup = store.status?.backup {
-                DisclosureGroup("Backup location") {
-                    Text(backup).font(.caption).textSelection(.enabled)
+            if let status = store.status {
+                DisclosureGroup("Details") {
+                    if let revision = status.revision {
+                        Text("Installed emulator software: \(revision)").font(.caption)
+                    }
+                    if let backup = status.backup {
+                        Text("Backup location: \(backup)")
+                            .font(.caption).textSelection(.enabled)
+                    }
                 }
             }
+        } header: {
+            HStack(spacing: 8) {
+                Text("macOS emulator icon appearance")
+                Text(appearanceTag)
+                    .font(.caption.bold())
+                    .foregroundStyle(tagColor)
+                    .padding(.horizontal, 8).padding(.vertical, 3)
+                    .background(tagColor.opacity(0.15), in: RoundedRectangle(cornerRadius: 5))
+                Button {
+                    Task { await store.run(.status, nodePath: nodePath) }
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .buttonStyle(.borderless)
+                .help("Refresh appearance status")
+                .accessibilityLabel("Refresh appearance status")
+                .disabled(store.isBusy)
+                if store.isBusy { ProgressView().controlSize(.small) }
+            }
         }
+
         .task(id: nodePath) { await store.run(.status, nodePath: nodePath) }
         .sheet(isPresented: $showsSigningConfirmation) {
             EmulatorTweaksPreviewSheet(
