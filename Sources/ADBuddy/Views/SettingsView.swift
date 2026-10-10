@@ -187,6 +187,7 @@ private struct EmulatorSettingsView: View {
             Section("Status") {
                 Text(helperStatus).font(.callout)
             }
+            EmulatorTweaksSettingsSection(nodePath: preferences.emulatorNodePath)
             Section {
                 DisclosureGroup("Advanced") {
                     VStack(alignment: .leading, spacing: 10) {
