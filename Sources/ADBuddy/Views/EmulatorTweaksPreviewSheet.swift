@@ -55,7 +55,7 @@ struct EmulatorTweaksPreviewSheet: View {
                     }
                     Spacer()
                     Button("Cancel", action: cancel).keyboardShortcut(.cancelAction)
-                    Button("Apply Tweaks", action: apply)
+                    Button("Make Pretty", action: apply)
                         .disabled(!canApply || !acceptsSigning)
                         .keyboardShortcut(.defaultAction)
                 }
