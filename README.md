@@ -169,11 +169,11 @@ Settings → Emulators supports an explicit Node executable override.
 
 ## macOS emulator appearance
 
-Settings → Emulators offers **Customize Appearance…** (or **Review Changes…**
-when patched) and **Restore Original** using
+Settings → Emulators offers **Learn More…** and **Restore Original** using
 bundled `@androperator/emulator-macos-tweaks` 1.0.2. The customization sheet shows
 Before/After app-switcher screenshots and keeps the signing acknowledgment visible
-below the preview. Applying requires an explicit
+below the preview, explains the installed SDK emulator version, and links to the
+open-source project on GitHub. Applying requires an explicit
 acknowledgment: Google's signature is replaced by a local ad-hoc signature while
 retaining entitlements and hardened runtime. Restore reinstates the exact original
 and its Google signature. No developer certificate or private key is used.

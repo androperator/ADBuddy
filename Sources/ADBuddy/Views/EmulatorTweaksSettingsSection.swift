@@ -11,13 +11,17 @@ struct EmulatorTweaksSettingsSection: View {
             Text(store.status?.summary ?? "Check the SDK to see whether tweaks are available.")
                 .font(.callout).foregroundStyle(.secondary)
             if let revision = store.status?.revision {
-                Text("Android Emulator \(revision)").font(.caption)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Installed emulator software: \(revision)")
+                    Text("This is the Android SDK’s emulator version. It determines whether appearance tweaks are supported.")
+                        .foregroundStyle(.secondary)
+                }.font(.caption)
             }
             HStack {
                 Button("Refresh Status") {
                     Task { await store.run(.status, nodePath: nodePath) }
                 }
-                Button(store.status?.state == "patched" ? "Review Changes…" : "Customize Appearance…") {
+                Button("Learn More…") {
                     acceptsSigning = false
                     showsSigningConfirmation = true
                 }

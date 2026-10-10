@@ -17,6 +17,9 @@ struct EmulatorTweaksPreviewSheet: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    Text("ADBuddy bundles an open-source utility that adds these appearance tweaks.")
+                        .font(.callout).foregroundStyle(.secondary)
+                    Link("View project on GitHub", destination: URL(string: "https://github.com/androperator/android-emulator-macos-tweaks")!)
                     preview("Before", filename: "emulator-app-switcher-before",
                             description: "Three identical circular Android emulator icons with the generic qemu-system-aarch64 label.")
                     preview("After", filename: "emulator-app-switcher-after",
