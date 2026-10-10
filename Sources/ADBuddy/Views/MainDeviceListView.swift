@@ -59,7 +59,7 @@ struct MainDeviceListView: View {
         }
         .listStyle(.inset)
         .background(NonFloatingListHeaders())
-        .frame(height: listHeight)
+        .frame(maxHeight: .infinity)
     }
 
     @ViewBuilder
@@ -103,20 +103,6 @@ struct MainDeviceListView: View {
                 systemImage: "exclamationmark.triangle"
             )
         }
-    }
-
-    private var listHeight: CGFloat {
-        DeviceListLayout.sectionedListHeight(
-            connectedDeviceCount: connectedDevices.count,
-            virtualDeviceCount: displayedVirtualDeviceCount
-        )
-    }
-
-    private var displayedVirtualDeviceCount: Int {
-        guard case .ready = emulatorStatus else {
-            return 0
-        }
-        return availableVirtualDevices.count
     }
 
     private var availableVirtualDevices: [AndroidVirtualDevice] {
