@@ -20,10 +20,10 @@ struct EmulatorTweaksPreviewSheet: View {
                     .font(.callout).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack(alignment: .top, spacing: 16) {
-                    preview("With", filename: "emulator-app-switcher-after",
-                            description: "Distinct tablet, phone and watch icons with the selected phone labeled Pixel_9.")
-                    preview("Without", filename: "emulator-app-switcher-before",
+                    preview("Without", tag: "ugly", color: .orange, filename: "emulator-app-switcher-before",
                             description: "Three identical circular Android emulator icons with the generic qemu-system-aarch64 label.")
+                    preview("With", tag: "pretty", color: .green, filename: "emulator-app-switcher-after",
+                            description: "Distinct tablet, phone and watch icons with the selected phone labeled Pixel_9.")
                 }
                 Text("Applies to every launch through this Android SDK, including Terminal and Android Studio. Restart running emulators to see the change. Supported builds only; Node.js must remain installed for AVD naming.")
                     .font(.callout).foregroundStyle(.secondary)
@@ -65,9 +65,14 @@ struct EmulatorTweaksPreviewSheet: View {
     }
 
     @ViewBuilder
-    private func preview(_ title: String, filename: String, description: String) -> some View {
+    private func preview(_ title: String, tag: String, color: Color, filename: String, description: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 4) {
+                Text(tag)
+                    .font(.caption.bold())
+                    .foregroundStyle(color)
+                    .padding(.horizontal, 8).padding(.vertical, 3)
+                    .background(color.opacity(0.15), in: RoundedRectangle(cornerRadius: 5))
                 Text(title).font(.headline)
                 Link(destination: URL(string: "https://github.com/androperator/android-emulator-macos-tweaks")!) {
                     Text("androperator-emulator-tweaks:").font(.system(.caption, design: .monospaced).bold())
