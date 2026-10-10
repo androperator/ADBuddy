@@ -353,7 +353,15 @@ final class DeviceStoreTests: XCTestCase {
             defaultScreenshotDirectory: mediaDirectory
         )
         preferences.revealMediaInFinder = true
-        let finderRevealer = RecordingMediaFinderRevealer()
+        let screenshotRevealed = expectation(description: "Screenshot revealed in Finder")
+        let recordingRevealed = expectation(description: "Recording revealed in Finder")
+        let finderRevealer = RecordingMediaFinderRevealer { fileURL in
+            switch fileURL.pathExtension {
+            case "png": screenshotRevealed.fulfill()
+            case "mp4": recordingRevealed.fulfill()
+            default: XCTFail("Unexpected revealed media: \(fileURL)")
+            }
+        }
         let store = DeviceStore(
             preferences: preferences,
             sdkLocator: sdkLocator,
@@ -368,10 +376,10 @@ final class DeviceStoreTests: XCTestCase {
         let device = try XCTUnwrap(store.devices.first)
 
         store.takeScreenshot(of: device)
-        await waitForScreenshotFeedback(in: store)
+        await fulfillment(of: [screenshotRevealed], timeout: 5)
 
         store.startScreenRecording(of: device, options: .default)
-        await waitForScreenRecordingFeedback(in: store)
+        await fulfillment(of: [recordingRevealed], timeout: 5)
 
         XCTAssertEqual(finderRevealer.mediaURLs.map(\.pathExtension), ["png", "mp4"])
     }
@@ -464,18 +472,6 @@ final class DeviceStoreTests: XCTestCase {
         XCTFail("Timed out waiting for screen recording feedback.")
     }
 
-    private func waitForScreenshotFeedback(in store: DeviceStore) async {
-        let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(5))
-        while clock.now < deadline {
-            if store.screenshotFeedback != nil {
-                return
-            }
-            try? await Task.sleep(for: .milliseconds(10))
-        }
-        XCTFail("Timed out waiting for screenshot feedback.")
-    }
-
     private func successfulResult(standardOutput: String = "") -> ProcessResult {
         ProcessResult(
             standardOutput: Data(standardOutput.utf8),
@@ -547,9 +543,15 @@ private final class RecordingMediaClipboard: MediaClipboardCopying {
 @MainActor
 private final class RecordingMediaFinderRevealer: MediaFinderRevealing {
     private(set) var mediaURLs: [URL] = []
+    private let onReveal: (URL) -> Void
+
+    init(onReveal: @escaping (URL) -> Void) {
+        self.onReveal = onReveal
+    }
 
     func revealMedia(at fileURL: URL) {
         mediaURLs.append(fileURL)
+        onReveal(fileURL)
     }
 }
 
