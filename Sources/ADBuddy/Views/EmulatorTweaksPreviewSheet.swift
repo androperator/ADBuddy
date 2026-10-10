@@ -70,7 +70,7 @@ struct EmulatorTweaksPreviewSheet: View {
             HStack(spacing: 4) {
                 Text(title).font(.headline)
                 Link(destination: URL(string: "https://github.com/androperator/android-emulator-macos-tweaks")!) {
-                    Text("androperator-emulator-tweaks").font(.system(.caption, design: .monospaced).bold())
+                    Text("androperator-emulator-tweaks:").font(.system(.caption, design: .monospaced).bold())
                 }
             }
             if let url = Bundle.main.url(forResource: filename, withExtension: "png", subdirectory: "EmulatorTweaks"),
