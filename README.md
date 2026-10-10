@@ -170,7 +170,8 @@ Settings → Emulators supports an explicit Node executable override.
 ## macOS emulator appearance
 
 Settings → Emulators offers **Learn More…** and **Restore Original** using
-bundled `@androperator/emulator-macos-tweaks` 1.0.2. The customization sheet shows
+bundled `@androperator/emulator-macos-tweaks` 1.0.2. Healthy applied tweaks open an info-only preview with Done and a separate Repair action.
+Repair reopens the signing acknowledgment before reapplying. The customization sheet shows
 a compact With/Without app-switcher comparison and keeps the signing acknowledgment visible
 below the preview, explains the installed SDK emulator version, and links to the
 open-source project on GitHub. Applying requires an explicit

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct EmulatorTweaksPreviewSheet: View {
     @Binding var acceptsSigning: Bool
+    @State private var isRepairing = false
     let isApplied: Bool
     let canApply: Bool
     let cancel: () -> Void
@@ -32,10 +33,15 @@ struct EmulatorTweaksPreviewSheet: View {
             }.padding(.horizontal, 24).padding(.bottom, 20)
 
             Divider()
-            if isApplied {
+            if isApplied && !isRepairing {
                 HStack {
                     Text("Your emulators are already pretty.").foregroundStyle(.secondary)
                     Spacer()
+                    Button("Repair…") {
+                        acceptsSigning = false
+                        isRepairing = true
+                    }
+                    .help("Reapply with the current Node installation if emulator launches fail")
                     Button("Done", action: cancel).keyboardShortcut(.defaultAction)
                 }.padding(24)
             } else {
