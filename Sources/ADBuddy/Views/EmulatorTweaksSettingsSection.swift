@@ -27,26 +27,31 @@ struct EmulatorTweaksSettingsSection: View {
         guard let status = store.status else {
             return store.isBusy ? "Checking whether appearance tweaks are available…" : "Appearance status is unavailable. Refresh to check your SDK."
         }
-        if status.state == "original" { return "Your emulator supports custom icons and device names. Tweaks are not enabled." }
+        if status.state == "original" { return "Want to see pretty emulator icons in the Dock?" }
         if isHealthyPatch { return "Appearance tweaks are enabled. Restart running emulators to see their icons and names." }
         return status.summary
     }
 
+    private func showPreview() {
+        acceptsSigning = false
+        showsSigningConfirmation = true
+    }
+
     var body: some View {
         Section {
-            Text(supportDescription)
-                .font(.callout).foregroundStyle(.secondary)
             HStack {
-                Button("Learn More…") {
-                    acceptsSigning = false
-                    showsSigningConfirmation = true
-                }
-                if store.status?.canRestore == true {
+                Text(supportDescription)
+                    .font(.callout).foregroundStyle(.secondary)
+                Button("Learn More", action: showPreview)
+                    .buttonStyle(.link)
+            }.disabled(store.isBusy)
+            if store.status?.canRestore == true {
+                HStack {
                     Button("Restore Original") {
                         Task { await store.run(.restore, nodePath: nodePath) }
                     }
-                }
-            }.disabled(store.isBusy)
+                }.disabled(store.isBusy)
+            }
             if let message = store.message {
                 Text(message).font(.callout).textSelection(.enabled)
             }
@@ -64,11 +69,16 @@ struct EmulatorTweaksSettingsSection: View {
         } header: {
             HStack(spacing: 8) {
                 Text("macOS emulator icon appearance")
-                Text(appearanceTag)
-                    .font(.caption.bold())
-                    .foregroundStyle(tagColor)
-                    .padding(.horizontal, 8).padding(.vertical, 3)
-                    .background(tagColor.opacity(0.15), in: RoundedRectangle(cornerRadius: 5))
+                Button(action: showPreview) {
+                    Text(appearanceTag)
+                        .font(.caption.bold())
+                        .foregroundStyle(tagColor)
+                        .padding(.horizontal, 8).padding(.vertical, 3)
+                        .background(tagColor.opacity(0.15), in: RoundedRectangle(cornerRadius: 5))
+                }
+                .buttonStyle(.plain)
+                .help("Learn more about emulator appearance")
+                .disabled(store.isBusy)
                 Button {
                     Task { await store.run(.status, nodePath: nodePath) }
                 } label: {
