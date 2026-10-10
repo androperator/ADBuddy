@@ -36,9 +36,10 @@ struct EmulatorTweaksPreviewSheet: View {
                     Label("Signing and restoration", systemImage: "exclamationmark.triangle.fill")
                         .font(.headline)
                         .foregroundStyle(.orange)
-                    Text("Applying replaces Google’s signature with a local ad-hoc signature, preserving entitlements and hardened runtime. The emulator is no longer Google-signed or notarized, and macOS’s security check (Gatekeeper) may treat it differently. No developer certificate or private key is used. Restore Original reinstates the exact backed-up executable and Google’s signature.")
+                    Text("Changing the emulator’s icons and app names modifies its executable, so Google’s original signature can no longer remain valid. ADBuddy replaces it with a local ad-hoc signature so macOS can run the modified emulator.\n\nThe patch preserves entitlements and hardened runtime. No developer certificate or private key is used. The emulator is no longer Google-signed or notarized, and macOS’s security check (Gatekeeper) may treat it differently.\n\nRestore Original reinstates the exact backed-up executable, including Google’s signature.")
                         .font(.callout)
                         .fixedSize(horizontal: false, vertical: true)
+                        .textSelection(.enabled)
                     Toggle("I accept the ad-hoc signing tradeoff", isOn: $acceptsSigning)
                 }
                 .padding(16)
@@ -60,13 +61,13 @@ struct EmulatorTweaksPreviewSheet: View {
                 }
             }.padding(24)
         }
-        .frame(width: 640)
+        .frame(width: 960)
     }
 
     @ViewBuilder
     private func preview(_ title: String, filename: String, description: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 4) {
                 Text(title).font(.headline)
                 Link(destination: URL(string: "https://github.com/androperator/android-emulator-macos-tweaks")!) {
                     Text("androperator-emulator-tweaks").font(.system(.caption, design: .monospaced).bold())
@@ -76,7 +77,7 @@ struct EmulatorTweaksPreviewSheet: View {
                let image = NSImage(contentsOf: url) {
                 Image(nsImage: image)
                     .resizable().scaledToFill()
-                    .frame(height: 84).clipped()
+                    .frame(height: 130).clipped()
                     .accessibilityLabel(description)
             } else {
                 Text(description).font(.callout)
