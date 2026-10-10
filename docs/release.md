@@ -172,3 +172,13 @@ Developer ID signing certificates, notarization credentials, and App Store
 Connect API keys are release secrets. Keep them out of the repository, app
 bundle, logs, shell history, and issue trackers. Do not add publishing
 automation or change release credentials without an explicit request.
+
+## Bundled emulator tweaks
+
+The app also contains the immutable 1.0.2 tweaks archive pinned in
+[the dependency manifest](../bundled-dependencies.json). Packaging checks its SHA-256
+and includes its license/notice files inside the archive and
+[provenance documentation](../vendor/emulator-tweaks/README.md). Do not extract or
+re-sign its native assets inside the app: changing them breaks the CLI's manifest.
+Deep signature verification covers the app's archived resource bytes. Developer ID
+notarization must still be checked during an authorized public release.

@@ -24,6 +24,7 @@ currently provides:
   **Reveal in Finder** action;
 - automatic screenshot and recording clipboard copy, enabled by default;
 - optional screenshot and recording Finder reveal;
+- opt-in macOS emulator icons and AVD Dock names, with exact original restoration;
 - installed-emulator discovery, Quick Boot, Cold Boot, confirmed wipe-and-start,
   stopping, and access to emulator windows and AVD folders;
 - device information, Android Settings access, theme and navigation controls,
@@ -165,3 +166,25 @@ in [bundled-dependencies.json](bundled-dependencies.json). See
 
 Node.js 24+ must be installed separately for emulator creation and deletion.
 Settings → Emulators supports an explicit Node executable override.
+
+## macOS emulator appearance
+
+Settings → Emulators offers **Apply Tweaks…** and **Restore Original** using
+bundled `@androperator/emulator-macos-tweaks` 1.0.2. Applying requires an explicit
+acknowledgment: Google's signature is replaced by a local ad-hoc signature while
+retaining entitlements and hardened runtime. Restore reinstates the exact original
+and its Google signature. No developer certificate or private key is used.
+
+The patch affects all launches through the selected SDK, including Terminal and
+Android Studio. Restart running emulators to see changes. Version 1.0.2 supports
+Android Emulator 37.1.11 build 15917651 on Apple Silicon; unknown builds are refused.
+Node.js 22+ is required for tweaks, including later emulator launches with AVD names.
+The existing Node executable setting is shared with creation and deletion (24+).
+If that Node installation moves, select the new Node and apply again.
+
+Backups are shared with the standalone CLI in
+`~/Library/Application Support/emulator-icon-macos/backups`. Keep them in place
+while patched; they contain the original and the naming/icon runtime. Closing or
+updating ADBuddy does not remove them. SDK updates may remove the patch; restore
+will not overwrite an unrecognized updated executable. A patch installed using a
+custom CLI backup directory must be managed through that CLI directory.

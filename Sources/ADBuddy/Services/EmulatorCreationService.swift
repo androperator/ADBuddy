@@ -11,6 +11,29 @@ struct EmulatorHelperInvocation: Sendable {
     let script: String
     let environment: [String: String]
 
+    static func resolveNode(
+        nodePath: String,
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        home: URL = FileManager.default.homeDirectoryForCurrentUser,
+        standardNodeDirectories: [String] = ["/opt/homebrew/bin", "/usr/local/bin"]
+    ) throws -> (String, [String]) {
+        let files = FileManager.default
+        func expanded(_ path: String) -> String { (path as NSString).expandingTildeInPath }
+        var directories = (environment["PATH"] ?? "").split(separator: ":").map(String.init)
+        directories += standardNodeDirectories + [home.appendingPathComponent(".volta/bin").path]
+        let nvm = home.appendingPathComponent(".nvm/versions/node")
+        let versions = (try? files.contentsOfDirectory(at: nvm, includingPropertiesForKeys: nil)) ?? []
+        directories += versions.sorted {
+            $0.lastPathComponent.compare($1.lastPathComponent, options: .numeric) == .orderedDescending
+        }.map { $0.appendingPathComponent("bin").path }
+        let explicitNode = nodePath.trimmingCharacters(in: .whitespacesAndNewlines)
+        let candidates = explicitNode.isEmpty ? directories.map { "\($0)/node" } : [expanded(explicitNode)]
+        guard let node = candidates.first(where: files.isExecutableFile(atPath:)) else {
+            throw EmulatorCreationError("Node.js is required. Install Node, or set its executable in Settings → Emulators. The selected Node override must exist and be executable.", kind: .nodeRuntime)
+        }
+        return (node, directories)
+    }
+
     static func resolve(
         configuration: EmulatorHelperConfiguration,
         sdk: AndroidSDK,
@@ -21,18 +44,7 @@ struct EmulatorHelperInvocation: Sendable {
     ) throws -> Self {
         let files = FileManager.default
         func expanded(_ path: String) -> String { (path as NSString).expandingTildeInPath }
-        var directories = (environment["PATH"] ?? "").split(separator: ":").map(String.init)
-        directories += standardNodeDirectories + [home.appendingPathComponent(".volta/bin").path]
-        let nvm = home.appendingPathComponent(".nvm/versions/node")
-        let versions = (try? files.contentsOfDirectory(at: nvm, includingPropertiesForKeys: nil)) ?? []
-        directories += versions.sorted {
-            $0.lastPathComponent.compare($1.lastPathComponent, options: .numeric) == .orderedDescending
-        }.map { $0.appendingPathComponent("bin").path }
-        let explicitNode = configuration.nodePath.trimmingCharacters(in: .whitespacesAndNewlines)
-        let candidates = explicitNode.isEmpty ? directories.map { "\($0)/node" } : [expanded(explicitNode)]
-        guard let node = candidates.first(where: files.isExecutableFile(atPath:)) else {
-            throw EmulatorCreationError("Node.js 24 or newer is required for emulator creation and deletion. Install Node, or set its executable in Settings → Emulators. The selected Node override must exist and be executable.", kind: .nodeRuntime)
-        }
+        let (node, directories) = try resolveNode(nodePath: configuration.nodePath, environment: environment, home: home, standardNodeDirectories: standardNodeDirectories)
         let override = configuration.helperPath.trimmingCharacters(in: .whitespacesAndNewlines)
         var script = override.isEmpty
             ? bundleURL.appendingPathComponent("Contents/Resources/Emulator/package/dist/cli.js").path

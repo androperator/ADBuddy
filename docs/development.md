@@ -187,3 +187,16 @@ External Node validation (2026-10-10):
   helper protocol/capabilities and absence of Node in the packaged app.
 - No SDK licenses or user emulators are changed by these checks. Native Intel,
   macOS 14 runtime and Developer ID notarization remain unverified.
+
+## Emulator appearance verification
+
+Run `scripts/test.sh ADBuddyTests.EmulatorTweaksTests,ADBuddyTests.EmulatorCreationTests`
+and `scripts/build_and_run.sh --verify`. Confirm the packaged archive hash matches
+`bundled-dependencies.json` and `codesign --verify --deep --strict dist/ADBuddy.app`.
+
+In Settings → Emulators, verify status never patches the SDK. Check Apply is disabled
+for unsupported builds. On the supported Apple Silicon build, cancel the Apply sheet
+and verify no change; acknowledge signing and apply; verify status, restart a test
+AVD, and check its Dock/Cmd-Tab name and device icon. Restore via the app and compare
+the SDK executable with the original vendor hash and signature. Reapply only with
+explicit consent. Keep backup generations and unrelated running devices intact.

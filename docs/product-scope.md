@@ -388,3 +388,14 @@ shows dedicated installation guidance with a link to the official Node.js instal
 webpage. **Check Again** repeats discovery after installation, while **Choose Existing
 Node…** opens Settings for an executable override. Creation stays unavailable
 until the runtime and emulator tools pass validation.
+
+### Opt-in macOS emulator appearance
+
+- Settings → Emulators can inspect, apply and restore the pinned tweaks package.
+- Apply requires a fresh explicit ad-hoc signing acknowledgment; no automatic
+  patching occurs on launch, discovery or status refresh.
+- Supported builds receive automatic device icons and AVD Dock/Cmd-Tab labels.
+- The SDK patch is global to that SDK; the CLI owns version checks, backups,
+  locking, original signature restoration and updated-SDK refusal.
+- Node is external and its recorded path must remain available for AVD naming.
+- Unsupported builds and failed operations are visible; running apps require a restart.

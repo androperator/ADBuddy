@@ -432,3 +432,16 @@ published package integrity, source revision and license notices.
 Creation refuses replacement, uses accepted licenses only, and refreshes discovery
 on success or failure. No helper progress stream or cancellation guarantee is
 assumed; the sheet remains open during an operation. ADBuddy must remain running.
+
+## Emulator tweaks integration
+
+`EmulatorTweaksSettingsSection` owns presentation and signing acknowledgment;
+`EmulatorTweaksStore` serializes operations and reports state; `EmulatorTweaksService`
+resolves the pinned archive, verifies SHA-256, extracts a temporary command installation,
+and executes Node with a literal argument array through ProcessRunner. Shared Node
+resolution is independent of custom creation-helper overrides. CLI status JSON is
+decoded to a typed model. The CLI owns SDK validation, locking, backups and patching.
+
+The npm archive is bundled intact to preserve native asset hashes and signatures
+through app packaging. Each command installation is removed afterward; the CLI
+copies the installed naming runtime into its own durable backup generation.
