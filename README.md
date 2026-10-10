@@ -193,3 +193,14 @@ while patched; they contain the original and the naming/icon runtime. Closing or
 updating ADBuddy does not remove them. SDK updates may remove the patch; restore
 will not overwrite an unrecognized updated executable. A patch installed using a
 custom CLI backup directory must be managed through that CLI directory.
+
+## License
+
+ADBuddy is licensed under the [Apache License, Version 2.0](LICENSE).
+
+Copyright (c) 2026 Action Launcher Pty Ltd
+
+Bundled third-party components retain their own licenses and notices. See the
+[recording backend notices](docs/recording-backend.md),
+[emulator helper provenance](vendor/emulator/README.md), and
+[emulator appearance tweaks attribution](vendor/emulator-tweaks/README.md).
