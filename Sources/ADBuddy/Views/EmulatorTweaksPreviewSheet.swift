@@ -2,6 +2,7 @@ import SwiftUI
 
 struct EmulatorTweaksPreviewSheet: View {
     @Binding var acceptsSigning: Bool
+    let isApplied: Bool
     let canApply: Bool
     let cancel: () -> Void
     let apply: () -> Void
@@ -31,35 +32,43 @@ struct EmulatorTweaksPreviewSheet: View {
             }.padding(.horizontal, 24).padding(.bottom, 20)
 
             Divider()
-            VStack(alignment: .leading, spacing: 12) {
-                VStack(alignment: .leading, spacing: 12) {
-                    Label("Signing and restoration", systemImage: "exclamationmark.triangle.fill")
-                        .font(.headline)
-                        .foregroundStyle(.orange)
-                    Text("Changing the emulator’s icons and app names modifies its executable, so Google’s original signature can no longer remain valid. ADBuddy replaces it with a local ad-hoc signature so macOS can run the modified emulator.\n\nThe patch preserves entitlements and hardened runtime. No developer certificate or private key is used. The emulator is no longer Google-signed or notarized, and macOS’s security check (Gatekeeper) may treat it differently.\n\nRestore Original reinstates the exact backed-up executable, including Google’s signature.")
-                        .font(.callout)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .textSelection(.enabled)
-                    Toggle("I accept the ad-hoc signing tradeoff", isOn: $acceptsSigning)
-                }
-                .padding(16)
-                .background(.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 10)
-                        .strokeBorder(.orange.opacity(0.65), lineWidth: 1)
-                }
+            if isApplied {
                 HStack {
-                    if !canApply {
-                        Text("Apply is unavailable for the current SDK. Check its status in Settings.")
-                            .font(.caption).foregroundStyle(.secondary)
-                    }
+                    Text("Your emulators are already pretty.").foregroundStyle(.secondary)
                     Spacer()
-                    Button("Cancel", action: cancel).keyboardShortcut(.cancelAction)
-                    Button("Make Pretty", action: apply)
-                        .disabled(!canApply || !acceptsSigning)
-                        .keyboardShortcut(.defaultAction)
-                }
-            }.padding(24)
+                    Button("Done", action: cancel).keyboardShortcut(.defaultAction)
+                }.padding(24)
+            } else {
+                VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("Signing and restoration", systemImage: "exclamationmark.triangle.fill")
+                            .font(.headline)
+                            .foregroundStyle(.orange)
+                        Text("Changing the emulator’s icons and app names modifies its executable, so Google’s original signature can no longer remain valid. ADBuddy replaces it with a local ad-hoc signature so macOS can run the modified emulator.\n\nThe patch preserves entitlements and hardened runtime. No developer certificate or private key is used. The emulator is no longer Google-signed or notarized, and macOS’s security check (Gatekeeper) may treat it differently.\n\nRestore Original reinstates the exact backed-up executable, including Google’s signature.")
+                            .font(.callout)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .textSelection(.enabled)
+                        Toggle("I accept the ad-hoc signing tradeoff", isOn: $acceptsSigning)
+                    }
+                    .padding(16)
+                    .background(.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 10)
+                            .strokeBorder(.orange.opacity(0.65), lineWidth: 1)
+                    }
+                    HStack {
+                        if !canApply {
+                            Text("Apply is unavailable for the current SDK. Check its status in Settings.")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Button("Cancel", action: cancel).keyboardShortcut(.cancelAction)
+                        Button("Make Pretty", action: apply)
+                            .disabled(!canApply || !acceptsSigning)
+                            .keyboardShortcut(.defaultAction)
+                    }
+                }.padding(24)
+            }
         }
         .frame(width: 960)
     }

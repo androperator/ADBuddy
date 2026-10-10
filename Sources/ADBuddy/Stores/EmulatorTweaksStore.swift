@@ -20,7 +20,6 @@ final class EmulatorTweaksStore {
             let (node, _) = try EmulatorHelperInvocation.resolveNode(nodePath: nodePath)
             let service = EmulatorTweaksService(sdk: sdk, node: node)
             status = try await service.run(command, acceptsSigning: acceptsSigning)
-            if command != .status { message = "Restart running emulators to see the change." }
         } catch {
             status = nil
             message = error.localizedDescription

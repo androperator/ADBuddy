@@ -96,6 +96,7 @@ struct EmulatorTweaksSettingsSection: View {
         .sheet(isPresented: $showsSigningConfirmation) {
             EmulatorTweaksPreviewSheet(
                 acceptsSigning: $acceptsSigning,
+                isApplied: isHealthyPatch,
                 canApply: store.status?.canApply == true && !store.isBusy,
                 cancel: { showsSigningConfirmation = false },
                 apply: {
