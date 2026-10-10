@@ -171,7 +171,7 @@ Settings → Emulators supports an explicit Node executable override.
 
 Settings → Emulators offers **Learn More…** and **Restore Original** using
 bundled `@androperator/emulator-macos-tweaks` 1.0.2. The customization sheet shows
-Before/After app-switcher screenshots and keeps the signing acknowledgment visible
+a compact With/Without app-switcher comparison and keeps the signing acknowledgment visible
 below the preview, explains the installed SDK emulator version, and links to the
 open-source project on GitHub. Applying requires an explicit
 acknowledgment: Google's signature is replaced by a local ad-hoc signature while
