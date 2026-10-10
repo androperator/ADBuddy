@@ -194,8 +194,9 @@ Run `scripts/test.sh ADBuddyTests.EmulatorTweaksTests,ADBuddyTests.EmulatorCreat
 and `scripts/build_and_run.sh --verify`. Confirm the packaged archive hash matches
 `bundled-dependencies.json` and `codesign --verify --deep --strict dist/ADBuddy.app`.
 
-In Settings → Emulators, verify status never patches the SDK. Check Apply is disabled
-for unsupported builds. On the supported Apple Silicon build, cancel the Apply sheet
+In Settings → Emulators, verify status never patches the SDK. Open Customize Appearance or Review Changes and verify the bundled Before/After
+images and accessible descriptions. Check the sheet’s final Apply is disabled
+for unsupported builds and until signing is acknowledged. On the supported Apple Silicon build, cancel the Apply sheet
 and verify no change; acknowledge signing and apply; verify status, restart a test
 AVD, and check its Dock/Cmd-Tab name and device icon. Restore via the app and compare
 the SDK executable with the original vendor hash and signature. Reapply only with

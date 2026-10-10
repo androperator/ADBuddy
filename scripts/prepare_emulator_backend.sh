@@ -27,3 +27,5 @@ mkdir -p "$DESTINATION/Resources/EmulatorTweaks"
 cp "$TWEAKS" "$DESTINATION/Resources/EmulatorTweaks/package.tgz"
 cp "$MANIFEST" "$DESTINATION/Resources/EmulatorTweaks/bundled-dependencies.json"
 cp "$ROOT_DIR/vendor/emulator-tweaks/README.md" "$DESTINATION/Resources/EmulatorTweaks/Provenance.md"
+
+cp "$ROOT_DIR/Resources/EmulatorTweaks/"*.png "$DESTINATION/Resources/EmulatorTweaks/"
