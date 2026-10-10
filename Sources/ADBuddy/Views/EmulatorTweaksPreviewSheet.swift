@@ -28,10 +28,20 @@ struct EmulatorTweaksPreviewSheet: View {
 
             Divider()
             VStack(alignment: .leading, spacing: 12) {
-                Text("Signing and restoration").font(.headline)
-                Text("Applying replaces Google’s signature with a local ad-hoc signature, preserving entitlements and hardened runtime. The emulator is no longer Google-signed or notarized, and Gatekeeper may treat it differently. No developer certificate or private key is used. Restore Original reinstates the exact backed-up executable and Google’s signature.")
-                    .font(.caption).foregroundStyle(.secondary)
-                Toggle("I accept the ad-hoc signing tradeoff", isOn: $acceptsSigning)
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Signing and restoration", systemImage: "exclamationmark.triangle.fill")
+                        .font(.headline)
+                        .foregroundStyle(.orange)
+                    Text("Applying replaces Google’s signature with a local ad-hoc signature, preserving entitlements and hardened runtime. The emulator is no longer Google-signed or notarized, and macOS’s security check (Gatekeeper) may treat it differently. No developer certificate or private key is used. Restore Original reinstates the exact backed-up executable and Google’s signature.")
+                        .font(.callout)
+                    Toggle("I accept the ad-hoc signing tradeoff", isOn: $acceptsSigning)
+                }
+                .padding(16)
+                .background(.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 10)
+                        .strokeBorder(.orange.opacity(0.65), lineWidth: 1)
+                }
                 HStack {
                     if !canApply {
                         Text("Apply is unavailable for the current SDK. Check its status in Settings.")
