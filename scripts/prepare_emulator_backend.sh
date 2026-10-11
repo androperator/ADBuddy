@@ -18,7 +18,8 @@ tar -xzf "$HELPER" -C "$DESTINATION/Resources/Emulator"
 cp "$MANIFEST" "$DESTINATION/Resources/Emulator/bundled-dependencies.json"
 cp "$ROOT_DIR/vendor/emulator/README.md" "$DESTINATION/Resources/Emulator/Provenance.md"
 
-# Keep native tweaks assets inside their immutable archive; do not re-sign them.
+# Copy the verified upstream archive. Public packaging signs a derived copy
+# and refreshes its internal and archive checksums before sealing the app.
 TWEAKS="$ROOT_DIR/$(manifest_value emulatorTweaks.archive)"
 [[ "$(shasum -a 256 "$TWEAKS" | cut -d ' ' -f 1)" == "$(manifest_value emulatorTweaks.sha256)" ]] || {
   echo "Emulator tweaks checksum mismatch: $TWEAKS" >&2; exit 1;

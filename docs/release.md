@@ -15,7 +15,7 @@ The proposed command, once that cask is published, is:
 brew install --cask clawperator/tap/adbuddy
 ```
 
-Use the bundle identifier `com.clawperator.adbuddy`. The supported target is
+Use the bundle identifier `com.androperator.adbuddy`. The supported target is
 macOS 14 or newer on Apple silicon and Intel Macs.
 
 ## Release artifact
@@ -178,7 +178,9 @@ automation or change release credentials without an explicit request.
 The app also contains the immutable 1.0.2 tweaks archive pinned in
 [the dependency manifest](../bundled-dependencies.json). Packaging checks its SHA-256
 and includes its license/notice files inside the archive and
-[provenance documentation](../vendor/emulator-tweaks/README.md). Do not extract or
-re-sign its native assets inside the app: changing them breaks the CLI's manifest.
-Deep signature verification covers the app's archived resource bytes. Developer ID
-notarization must still be checked during an authorized public release.
+[provenance documentation](../vendor/emulator-tweaks/README.md). Apple inspects native binaries inside nested archives during notarization. Release
+packaging signs the launcher and icon helper in a temporary copy, updates their
+internal manifest hashes, and repacks the copy with a new archive checksum. The
+bundled manifest records both the packaged checksum and the upstream archive
+checksums. The vendored archive stays unchanged. The outer app signature seals
+the derived archive and its manifest; runtime integrity checks remain enabled.

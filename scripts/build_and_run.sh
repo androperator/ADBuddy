@@ -3,7 +3,7 @@ set -euo pipefail
 
 MODE="${1:-run}"
 APP_NAME="ADBuddy"
-BUNDLE_ID="com.clawperator.adbuddy"
+BUNDLE_ID="com.androperator.adbuddy"
 MIN_SYSTEM_VERSION="14.0"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -91,7 +91,7 @@ cat >"$INFO_PLIST" <<PLIST
       <string>Alternate</string>
       <key>LSItemContentTypes</key>
       <array>
-        <string>com.clawperator.adbuddy.android-package-archive</string>
+        <string>com.androperator.adbuddy.android-package-archive</string>
       </array>
     </dict>
   </array>
@@ -99,7 +99,7 @@ cat >"$INFO_PLIST" <<PLIST
   <array>
     <dict>
       <key>UTTypeIdentifier</key>
-      <string>com.clawperator.adbuddy.android-package-archive</string>
+      <string>com.androperator.adbuddy.android-package-archive</string>
       <key>UTTypeDescription</key>
       <string>Android Package Archive</string>
       <key>UTTypeConformsTo</key>

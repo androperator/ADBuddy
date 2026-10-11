@@ -2,7 +2,7 @@ import Foundation
 import OSLog
 
 public enum AppLogger {
-    private static let subsystem = Bundle.main.bundleIdentifier ?? "com.clawperator.adbuddy"
+    private static let subsystem = Bundle.main.bundleIdentifier ?? "com.androperator.adbuddy"
 
     public static let lifecycle = Logger(subsystem: subsystem, category: "Lifecycle")
     public static let androidSDK = Logger(subsystem: subsystem, category: "AndroidSDK")
