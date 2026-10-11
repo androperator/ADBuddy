@@ -262,18 +262,25 @@ final class LogcatStoreTests: XCTestCase {
 
     func testUnexpectedFailuresReconnectAfterTheConfiguredDelay() async throws {
         let service = ControllableLogcatService()
+        let reconnectScheduled = expectation(description: "Logcat schedules its first retry")
         let store = makeStore(
             service: service,
-            reconnectDelay: { _ in .milliseconds(20) }
+            reconnectDelay: { failedAttempts in
+                XCTAssertEqual(failedAttempts, 1)
+                XCTAssertEqual(service.streamCount, 1)
+                reconnectScheduled.fulfill()
+                return .milliseconds(20)
+            }
         )
+        defer { store.stop() }
 
         store.updateDeviceAvailability(.usable(adbPath: "/SDK/platform-tools/adb"))
         try await waitForStreamCount(service, expectedCount: 1)
         service.yield(.failed(.terminated(exitStatus: 1, standardError: "device offline")))
-        try await waitForState(store, matching: .failed("Logcat exited with status 1: device offline"))
+        // Observe retry scheduling directly instead of polling the brief failed state.
+        await fulfillment(of: [reconnectScheduled], timeout: 2)
 
         try await waitForStreamCount(service, expectedCount: 2)
-        store.stop()
     }
 
     func testStopPreventsAPendingReconnectAfterFailure() async throws {
