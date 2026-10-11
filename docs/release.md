@@ -159,9 +159,9 @@ end
 For each release, publish and verify the app ZIP first, then update the cask
 version and SHA-256 in the tap. Validate the cask before publishing the tap change.
 The tap's npm updater maintains only the CLI and emulator formulae; it does not
-update the ADBuddy cask. Android SDK tools remain external. Node.js 24+ is needed
-only for emulator creation and deletion, so the cask does not require Node for
-other app features. Normal uninstall retains preferences and captures.
+update the ADBuddy cask. Android SDK tools remain external. Emulator creation
+and deletion require Node.js 24+; emulator appearance tweaks require Node.js 22+.
+Node is optional for other app features, so the cask does not install it. Normal uninstall retains preferences and captures.
 `brew uninstall --cask --zap androperator/tap/adbuddy` also removes the legacy
 shared preferences file; captures remain untouched.
 

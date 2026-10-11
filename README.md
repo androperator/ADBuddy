@@ -86,7 +86,7 @@ brew install --cask androperator/tap/adbuddy
 
 Update Homebrew installations with `brew upgrade --cask androperator/tap/adbuddy`.
 
-Requires **macOS 14 or newer**. Emulator creation and deletion also need **Node.js 24+** and the SDK's emulator tools. [Setup, preferences, and workflow details →](docs/usage.md)
+Requires **macOS 14 or newer**. Emulator creation and deletion also need **Node.js 24+** and the SDK's emulator tools. Emulator appearance tweaks need **Node.js 22+**. [Setup, preferences, and workflow details →](docs/usage.md)
 
 ## Build and contribute
 
