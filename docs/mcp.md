@@ -28,7 +28,7 @@ Android target is connected.
 
 MCP screenshots and recordings use the same folder and saved recording defaults
 as the ADBuddy app. The server reads the shared `com.clawperator.adbuddy`
-preferences domain, so screenshot framing, device-details, and the optional
+preferences domain, retained across the 1.0 bundle-identifier change, so screenshot framing, device-details, and the optional
 50%-size copy apply to agent captures as well.
 
 Tool results provide local absolute paths, not inline image or video data.

@@ -1,6 +1,8 @@
 import Foundation
 
 public enum ADBuddySharedPreferences {
+    // Keep the original preferences domain so upgrades retain settings and
+    // the GUI and MCP helper continue sharing the same values.
     public static let suiteName = "com.clawperator.adbuddy"
     public static let screenshotDirectoryPathKey = "screenshotDirectoryPath"
     public static let screenshotAddsFrameKey = "screenshotAddsFrame"
@@ -13,12 +15,12 @@ public enum ADBuddySharedPreferences {
     public static let screenRecordingAddsFrameKey = "screenRecordingAddsFrame"
 
     public static func userDefaults(
-        bundleIdentifier: String? = Bundle.main.bundleIdentifier
+        bundleIdentifier: String? = Bundle.main.bundleIdentifier,
+        suiteName: String = ADBuddySharedPreferences.suiteName
     ) -> UserDefaults {
-        // ADBuddy itself owns this preferences domain, so it must use the
-        // application's standard defaults rather than opening its own bundle
-        // identifier as a suite. The bundled MCP executable can still open
-        // that domain when it runs without ADBuddy's bundle identity.
+        // Legacy builds used this domain as their bundle identifier. They must
+        // use standard defaults rather than opening their own domain as a
+        // suite. Renamed builds and the MCP helper open the legacy suite.
         if bundleIdentifier == suiteName {
             return .standard
         }

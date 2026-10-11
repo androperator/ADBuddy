@@ -324,10 +324,11 @@ Logcat (severity colors), and About (app version, credits, and GitHub repository
 Recording bit rate, resolution, and Show taps are selected in the recording
 options sheet.
 
-The app writes shared media and recording settings through its standard
-`com.clawperator.adbuddy` application defaults domain. The bundled MCP helper
-reads that same domain when it runs headlessly, so it receives the current
-settings without the GUI using its own bundle identifier as a defaults suite.
+The app uses the bundle identifier `com.androperator.adbuddy`. It retains
+`com.clawperator.adbuddy` as its preferences suite so upgrades preserve saved
+settings. The GUI and bundled MCP helper both read and write that legacy
+domain. Builds whose bundle identifier matches the preferences domain use
+standard defaults instead of opening their own domain as a suite.
 
 ## Screen recording
 
