@@ -1,6 +1,6 @@
 ---
 name: release-adbuddy
-description: Prepare, publish, or resume an ADBuddy release end to end, including version synchronization, authored notes, signed macOS archives, and GitHub verification. Also handles version-only bumps and explicitly scoped packaging or upload requests.
+description: Prepare, publish, or resume an ADBuddy release end to end, including version synchronization, authored notes, signed macOS archives, GitHub verification, and Homebrew cask updates and validation. Also handles version-only bumps and explicitly scoped packaging or upload requests.
 ---
 
 # ADBuddy releases
@@ -14,14 +14,18 @@ for signing, notarization, and distribution requirements.
 
 - A version-bump request runs **Version bump** only.
 - A request to release or publish version X runs **Release end to end**, including
-  version preparation when necessary. A request to resume an authorized release
-  continues that same version and scope.
+  version preparation and the Homebrew cask update after verified publication.
+  This scope includes cask validation, a tap branch commit and push, and opening
+  or updating its PR. Honor explicit exclusions. A request to resume an authorized
+  release continues that same version and scope.
 - For packaging, tag-only, or asset-upload requests, perform the necessary
   prerequisites and stop at the requested stage. Packaging alone does not
   authorize pushing a tag or publishing a GitHub Release.
-- Do not update the Homebrew tap or advance to the next development version
-  unless explicitly requested. ADBuddy has one version source, with no separate
-  published-version follow-up.
+- Version-only, packaging-only, tag-only, and upload-only requests do not update
+  the tap unless requested. Do not advance to the next development version.
+  ADBuddy has one version source, with no separate published-version follow-up.
+- Do not merge the tap PR, enable auto-merge, or push directly to its default
+  branch unless the user explicitly requests it.
 
 Use the version and release commit already selected by the user. For publication,
 require a stable bare `major.minor.patch` version, such as `0.2.2`. Ask only if the
@@ -83,12 +87,14 @@ completion from a filename or an earlier claim alone.
 | Validation and packaging | Passing checks and all four public archives are tied to the exact release commit, with recorded hashes and signing/notarization verification. |
 | Tag | The local and remote tag, where present, resolve to the validated release commit. Push only if the remote tag is absent. |
 | GitHub Release | The release uses that tag and authored body; all four assets are present and their downloaded bytes match the validated hashes. |
+| Homebrew cask | The target universal ZIP URL, version, and downloaded SHA-256 are committed in the public tap, or in an existing PR at the validated HEAD. Record whether publication is merged or pending. |
 
 If an existing release or tag identifies another commit, stop and report the
 conflict. Never move or delete a release tag. If resuming a tagged release, use
 its exact commit for any necessary local validation or rebuilding; do not bump
 the current branch back to an older version. If the published release already
-passes all checks, report completion without rebuilding or republishing.
+passes all checks, continue with any unfinished cask stage without rebuilding or
+republishing.
 
 ### Complete the remaining stages
 
@@ -175,8 +181,57 @@ passes all checks, report completion without rebuilding or republishing.
    release. Clean-machine and native Intel runtime checks remain separate from
    packaging verification as described in `docs/release.md`.
 
+7. **Update and validate the Homebrew cask.** After stage 6 succeeds, use
+   `androperator/homebrew-tap`, normally at the sibling `../homebrew-tap` checkout
+   (`/Users/chrislacy/src/androperator/homebrew-tap` on this host). Verify its
+   remote and read its repository instructions. Fetch its `origin/main`, preserve
+   unrelated work, and use a release-specific task branch. The tap's npm updater
+   touches only CLI/emulator formulae; do not change them for an ADBuddy release.
+
+   Update `Casks/adbuddy.rb` to the target version and
+   `ADBuddy-macos-universal-<version>.zip` URL from the verified GitHub Release.
+   Set `sha256` from the downloaded ZIP bytes and compare it with stage 6's
+   recorded hash. Preserve the macOS minimum, `app "ADBuddy.app"`, and cleanup
+   behavior unless the release changes them. The app identity is
+   `com.androperator.adbuddy`; the shared preferences domain intentionally remains
+   `com.clawperator.adbuddy`. Keep Node optional in the cask.
+
+   Before running Homebrew checks, verify it resolves the candidate checkout and
+   target URL/checksum rather than another installed tap. If necessary, use a
+   separate test tap or test host instead of replacing an unrelated checkout.
+   From the candidate tap checkout, run:
+
+   ```bash
+   git diff --check
+   ruby -c Casks/adbuddy.rb
+   HOMEBREW_NO_AUTO_UPDATE=1 brew style --cask androperator/tap/adbuddy
+   HOMEBREW_NO_AUTO_UPDATE=1 brew audit --cask --online androperator/tap/adbuddy
+   ```
+
+   Extract the ZIP with `ditto` and check version, identifier, both architectures, signature,
+   Gatekeeper acceptance, and stapling. When no ADBuddy cask is already installed,
+   test installation with `--appdir=<temporary-directory>` and uninstall that
+   test installation without `--zap`. Preserve existing apps, preferences, and
+   captures. If an existing installation prevents a safe install/upgrade check,
+   report that limit and validate the archive and cask without replacing it.
+
+   Commit only the cask and necessary tap documentation, push the task branch,
+   and open or update a PR against the tap's `main`. Include the release URL,
+   universal ZIP hash, validation, and any untested runtime or upgrade behavior.
+   Verify the PR HEAD matches the validated commit. A matching published cask or
+   matching validated PR can be reused on resume; do not create duplicate commits
+   or PRs. Do not downgrade a newer public cask when resuming an older release;
+   report that the target has been superseded. Conflicting target-version URLs
+   or checksums require investigation before publication.
+
+   Report the app release and tap PR separately. An open PR means cask publication
+   is pending. When merge is explicitly authorized, verify the merged public cask
+   contains the validated version, URL and checksum, and perform a safe public-tap
+   installation check or state why an existing installation prevents it.
+
 If any external step fails, inspect its resulting state and report the first
 incomplete stage. Preserve successful prior stages. Continue only within the
 existing authorization; a later resume request can finish the same release
-without recreating its tag or repeating completed work. Do not push preparation
-branch commits or modify the separate Homebrew tap unless explicitly requested.
+without recreating its tag or repeating completed work. Do not push app release
+preparation branches unless explicitly requested; tap branch publication follows
+the end-to-end scope above.
