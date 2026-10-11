@@ -18,11 +18,11 @@ ADBuddy fills that gap: a small, native macOS app for everyday Android device ta
 
 ![Device controls with the Toggle Dark Theme tooltip visible](docs/images/dark-theme.png)
 
-### Handy shortcuts a click away
+### Restart an app or clear its data in a click
 
 ![Foreground App menu with Clear App Data and Restart highlighted](docs/images/app-actions.png)
 
-### Toggle system navigation styles
+### Test with gestures or three-button navigation
 
 ![Device Settings menu with Use 3-Button Navigation highlighted](docs/images/device-navigation.png)
 
@@ -54,9 +54,9 @@ Manage existing emulators alongside your connected devices. Start, stop, cold bo
 
 *Emulator creation and deletion require Node.js 24+. [Setup details →](docs/usage.md#create-and-manage-emulators)*
 
-## Pretty Adnroid emulator icons and names
+## Emulator icons and names
 
-Three identical icons named `qemu-system-aarch64`? Nah. Give each emulator a device icon and its AVD name in the Dock and app switcher.
+Tell your emulators apart at a glance. Replace identical icons and the generic `qemu-system-aarch64` name with a device icon and each emulator's AVD name in the Dock and app switcher.
 
 **Without appearance tweaks:**
 
