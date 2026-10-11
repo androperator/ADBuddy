@@ -117,8 +117,12 @@ scope.
    and upload all three final app ZIPs and the matching recording-source ZIP with
    release notes to GitHub Releases. Follow the
    release skill for tag and upload recovery rules.
-9. If a Homebrew tap update is explicitly requested, publish or update its cask
-   URL, version, and SHA-256 after the matching asset exists.
+9. For an end-to-end release, update and validate the cask in
+   `androperator/homebrew-tap` after verifying the published universal ZIP. Commit
+   the version, URL, and downloaded SHA-256 on a tap branch and open or update its
+   PR. Report cask publication as pending until merged; merging or enabling
+   auto-merge requires an explicit request. Narrow version, packaging, tag, and
+   upload requests retain their requested scope.
 10. Validate the published ZIP on a clean test machine or user profile. Validate
    cask installation separately when that distribution channel is available.
 
@@ -136,12 +140,13 @@ AppleDouble files that can invalidate a signed bundle.
 ## Homebrew cask
 
 The cask points at the versioned universal GitHub Release ZIP and declares its
-SHA-256 checksum, app bundle, macOS minimum version, and homepage:
+SHA-256 checksum, app bundle, macOS minimum version, and homepage. This example
+uses a checksum placeholder; the tap must contain the downloaded ZIP's real hash:
 
 ```ruby
 cask "adbuddy" do
   version "1.0.0"
-  sha256 "95363f2de0e159ff71d120498c531dafa2e4663e07ad6ea51b74d4b0e5f63595"
+  sha256 "<downloaded-release-sha256>"
 
   url "https://github.com/androperator/adbuddy/releases/download/v#{version}/ADBuddy-macos-universal-#{version}.zip"
   name "ADBuddy"
