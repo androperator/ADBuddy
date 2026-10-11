@@ -69,7 +69,7 @@ bundle for reference.
 
 Release packaging puts the matching sources and this document in a separate
 `ADBuddy-recording-sources-<version>.zip`, published alongside the app ZIP on
-[the same GitHub Release](https://github.com/clawperator/adbuddy/releases).
+[the same GitHub Release](https://github.com/androperator/adbuddy/releases).
 The app keeps this document and the license texts in
 `Contents/Resources/Recording/README.md` and `Licenses/`. Its `Sources.txt`
 contains the download URL for the matching source archive. All app ZIPs and the shared source ZIP

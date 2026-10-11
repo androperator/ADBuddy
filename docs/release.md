@@ -3,16 +3,17 @@
 ## Distribution
 
 ADBuddy is distributed through
-[GitHub Releases](https://github.com/clawperator/adbuddy/releases), with app ZIPs
+[GitHub Releases](https://github.com/androperator/adbuddy/releases), with app ZIPs
 for Apple Silicon (`arm64`), Intel (`x86_64`), and both architectures (universal).
 Choose the ZIP for your Mac, extract it, then move `ADBuddy.app` to Applications.
 The universal ZIP runs on either architecture but is a larger download.
 
-A Clawperator-maintained Homebrew cask remains a planned distribution channel.
-The proposed command, once that cask is published, is:
+The Homebrew cask is maintained in
+[androperator/homebrew-tap](https://github.com/androperator/homebrew-tap), in
+`Casks/adbuddy.rb`. Once the cask is published in the tap, install with:
 
 ```sh
-brew install --cask clawperator/tap/adbuddy
+brew install --cask androperator/tap/adbuddy
 ```
 
 Use the bundle identifier `com.androperator.adbuddy`. The supported target is
@@ -132,34 +133,43 @@ stapler validate ADBuddy.app
 Use `ditto` when extracting release ZIPs during validation to avoid introducing
 AppleDouble files that can invalidate a signed bundle.
 
-## Planned Homebrew cask
+## Homebrew cask
 
-The cask should point at the immutable GitHub Release ZIP and declare the app
-bundle, macOS minimum version, homepage, and app data cleanup paths. A minimal
-future shape is:
+The cask points at the versioned universal GitHub Release ZIP and declares its
+SHA-256 checksum, app bundle, macOS minimum version, and homepage:
 
 ```ruby
 cask "adbuddy" do
   version "1.0.0"
-  sha256 "<release-sha256>"
+  sha256 "95363f2de0e159ff71d120498c531dafa2e4663e07ad6ea51b74d4b0e5f63595"
 
-  url "https://github.com/clawperator/adbuddy/releases/download/v#{version}/ADBuddy-macos-universal-#{version}.zip"
+  url "https://github.com/androperator/adbuddy/releases/download/v#{version}/ADBuddy-macos-universal-#{version}.zip"
   name "ADBuddy"
-  desc "Native menu bar utility for Android developer tasks"
-  homepage "https://clawperator.com/"
+  desc "Android device and emulator developer tools"
+  homepage "https://github.com/androperator/adbuddy"
 
   depends_on macos: :sonoma
+
   app "ADBuddy.app"
+
+  zap trash: "~/Library/Preferences/com.clawperator.adbuddy.plist"
 end
 ```
 
-Do not publish this cask until its matching release asset and SHA-256 exist.
+For each release, publish and verify the app ZIP first, then update the cask
+version and SHA-256 in the tap. Validate the cask before publishing the tap change.
+The tap's npm updater maintains only the CLI and emulator formulae; it does not
+update the ADBuddy cask. Android SDK tools remain external. Emulator creation
+and deletion require Node.js 24+; emulator appearance tweaks require Node.js 22+.
+Node is optional for other app features, so the cask does not install it. Normal uninstall retains preferences and captures.
+`brew uninstall --cask --zap androperator/tap/adbuddy` also removes the legacy
+shared preferences file; captures remain untouched.
 
 ## Updates
 
 Direct-download installations use manual replacement with a newer release.
-Once Homebrew distribution is available, its installations should use
-`brew upgrade --cask`. There is no in-app updater. Do not add Sparkle yet:
+Homebrew installations should use
+`brew upgrade --cask androperator/tap/adbuddy`. There is no in-app updater. Do not add Sparkle yet:
 it adds a dependency and a second update channel before the core product is
 proven.
 
