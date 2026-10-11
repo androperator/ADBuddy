@@ -1,5 +1,65 @@
 # Changelog
 
+## [1.0.0] - 2026-10-11
+
+ADBuddy 1.0 added optional emulator icons and names, improved emulator window handling, and made everyday device workflows easier to discover. This milestone also included the emulator creation, device controls, and Settings improvements introduced in 0.3.0.
+
+### macOS App
+
+- **Added:** Switched connected devices between light and dark mode directly from their row or the menu bar, including devices using an automatic theme schedule.
+- **Added:** Created emulators from hardware profiles and Android images, with custom names, storage settings, and separate **Create** and **Create & Start** actions. Stopped emulators could be deleted after confirmation, while shared system images were retained.
+- **Added:** Guided Node.js setup with installation instructions and retry controls when the required runtime was missing, unusable, or too old.
+- **Added:** Showed app information, source links, and credits in an About tab. Settings no longer focused a tab automatically when opened, while keyboard navigation remained available.
+- **Added:** Showed allocated disk usage beside stopped and running emulators, including snapshots but excluding shared SDK images.
+- **Added:** Offered optional device icons and AVD names in the macOS Dock and app switcher through **Settings → Emulators**. Supported builds could be patched after a signing acknowledgment, repaired, or restored to their original files and signature.
+- **Changed:** Bundled the emulator creation/deletion helper so a separate helper installation was no longer needed. Node.js 24+ remained an external requirement, with explicit runtime and helper overrides available in Settings.
+- **Changed:** Placed APK installation first in the toolbar, explained when it was unavailable, and grouped severity colors under a dedicated Logcat settings tab.
+- **Fixed:** Signed the native emulator-appearance helpers inside the bundled archive so the app could pass Apple notarization while retaining integrity checks.
+- **Fixed:** Kept the main view compatible with the stable Xcode toolchain without changing its behavior.
+- **Fixed:** Rendered toolbar icons and section dividers consistently at launch.
+- **Fixed:** Recognized emulator host windows whose executable names matched their AVD names, preserving window reveal and standalone/embedded detection with appearance tweaks installed.
+- **Fixed:** Let the device list fill a resized main window so enlarging it revealed more devices.
+
+### Documentation
+
+- **Added:** Documented the device dark-theme toggle and its behavior with automatic theme schedules.
+- **Added:** Documented emulator creation, hardware filtering, storage limits, safe deletion, and validation steps.
+- **Added:** Documented automatic macOS unit-test checks for pull requests and changes to the main branch.
+- **Added:** Documented the bundled emulator helper, external Node.js requirements, runtime overrides, and package provenance.
+- **Added:** Documented authored release notes and a resumable signing, notarization, and publication workflow.
+- **Added:** Documented Node.js setup guidance and retry controls.
+- **Added:** Documented the About tab and Settings navigation.
+- **Added:** Documented emulator disk-usage measurements and their exclusions.
+- **Added:** Recorded the published 0.3.0 release notes and synchronized release examples.
+- **Added:** Documented emulator appearance compatibility, signing acknowledgment, backups, repair, and restoration.
+- **Changed:** Updated the Settings and Logcat guides for the dedicated Logcat tab and APK toolbar behavior.
+- **Changed:** Identified Apache 2.0 as the project license and linked bundled-component license notices.
+- **Changed:** Replaced the README feature inventory with short workflow descriptions and screenshots, and moved detailed setup and usage instructions into a separate guide.
+- **Changed:** Documented signed dependency packaging, upstream provenance, and offline signing checks.
+
+### MCP Helper
+
+- **Changed:** Kept the reported server version aligned with the published app version.
+
+Pull requests:
+- [feat: add inline device dark theme toggle](https://github.com/androperator/adbuddy/pull/1)
+- [feat(emulators): add creation and safe deletion workflows](https://github.com/androperator/adbuddy/pull/2)
+- [ci(tests): run macOS tests on every pull request](https://github.com/androperator/adbuddy/pull/3)
+- [feat(emulators): bundle pinned helper with external Node support](https://github.com/androperator/adbuddy/pull/4)
+- [feat(release): add authored notes and resumable publication](https://github.com/androperator/adbuddy/pull/5)
+- [feat(emulators): guide Node.js setup and clarify settings](https://github.com/androperator/adbuddy/pull/6)
+- [fix(ui): stabilize main toolbar and section dividers](https://github.com/androperator/adbuddy/pull/7)
+- [feat(settings): add About tab and avoid automatic keyboard focus](https://github.com/androperator/adbuddy/pull/8)
+- [fix(ui): clarify APK availability and group Logcat settings](https://github.com/androperator/adbuddy/pull/9)
+- [feat(emulators): show disk usage beside Android version](https://github.com/androperator/adbuddy/pull/10)
+- [chore(release): record the published 0.3.0 release](https://github.com/androperator/adbuddy/pull/11)
+- [fix(emulator): recognize AVD-named host windows](https://github.com/androperator/adbuddy/pull/12)
+- [test(media): await explicit Finder reveal completion](https://github.com/androperator/adbuddy/pull/13)
+- [feat(emulators): bundle opt-in macOS appearance tweaks](https://github.com/androperator/adbuddy/pull/14)
+- [chore(license): adopt Apache 2.0](https://github.com/androperator/adbuddy/pull/15)
+- [fix(window): expand device list when resizing the main window](https://github.com/androperator/adbuddy/pull/16)
+- [docs(readme): showcase device workflows with screenshots](https://github.com/androperator/adbuddy/pull/17)
+
 ## [0.3.0] - 2026-10-10
 
 ADBuddy added emulator creation and safe deletion, showed emulator disk usage, and made device controls and Settings clearer. Emulator creation and deletion used the bundled helper and required a separately installed Node.js 24 or newer.

@@ -82,7 +82,7 @@ Each mode rebuilds and packages the app before starting:
 | --- | --- |
 | `scripts/build_and_run.sh --debug` | Run the packaged executable under LLDB. |
 | `scripts/build_and_run.sh --logs` | Launch and stream logs for the ADBuddy process. |
-| `scripts/build_and_run.sh --telemetry` | Launch and stream logs for the `com.clawperator.adbuddy` subsystem. |
+| `scripts/build_and_run.sh --telemetry` | Launch and stream logs for the `com.androperator.adbuddy` subsystem. |
 
 Contribution and agent workflow rules are in [AGENTS.md](../AGENTS.md).
 
@@ -207,3 +207,11 @@ signing and apply; restart a test AVD and check its Dock/Cmd-Tab name and device
 Restore via the app and compare the SDK executable with the original vendor hash
 and signature. Reapply only with explicit consent. Keep backup generations and
 unrelated running devices intact.
+
+## Release dependency signing checks
+
+Run `python3 scripts/test_sign_emulator_tweaks.py` on macOS with Node installed
+to validate derived tweaks archives using ad-hoc signing. The checks verify
+upstream integrity validation, unchanged non-native payloads, corrupt-archive
+rejection, and preservation of the original archive when signing fails. They do
+not require a certificate or modify the Android SDK.

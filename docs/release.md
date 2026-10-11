@@ -3,19 +3,20 @@
 ## Distribution
 
 ADBuddy is distributed through
-[GitHub Releases](https://github.com/clawperator/adbuddy/releases), with app ZIPs
+[GitHub Releases](https://github.com/androperator/adbuddy/releases), with app ZIPs
 for Apple Silicon (`arm64`), Intel (`x86_64`), and both architectures (universal).
 Choose the ZIP for your Mac, extract it, then move `ADBuddy.app` to Applications.
 The universal ZIP runs on either architecture but is a larger download.
 
-A Clawperator-maintained Homebrew cask remains a planned distribution channel.
-The proposed command, once that cask is published, is:
+The Homebrew cask is maintained in
+[androperator/homebrew-tap](https://github.com/androperator/homebrew-tap), in
+`Casks/adbuddy.rb`. Once the cask is published in the tap, install with:
 
 ```sh
-brew install --cask clawperator/tap/adbuddy
+brew install --cask androperator/tap/adbuddy
 ```
 
-Use the bundle identifier `com.clawperator.adbuddy`. The supported target is
+Use the bundle identifier `com.androperator.adbuddy`. The supported target is
 macOS 14 or newer on Apple silicon and Intel Macs.
 
 ## Release artifact
@@ -26,7 +27,7 @@ app containing both slices. Each app includes the `adbuddy-mcp` stdio helper in
 such as:
 
 ```text
-ADBuddy-macos-universal-0.3.0.zip
+ADBuddy-macos-universal-1.0.0.zip
 ```
 
 The smaller downloads use `ADBuddy-macos-arm64-<version>.zip` and
@@ -57,7 +58,7 @@ source ZIP on the same release and keep them available. See [recording-backend.m
 `VERSION` is the source of truth for the release version. Use the repository
 release helper to synchronize the MCP version, document examples, and packaging
 example, then commit the version change before packaging. The current version is
-`0.3.0`.
+`1.0.0`.
 
 `scripts/package_release.sh` creates all three application bundles and
 versioned app ZIPs, plus one shared recording-source ZIP. It defaults to the
@@ -116,8 +117,12 @@ scope.
    and upload all three final app ZIPs and the matching recording-source ZIP with
    release notes to GitHub Releases. Follow the
    release skill for tag and upload recovery rules.
-9. If a Homebrew tap update is explicitly requested, publish or update its cask
-   URL, version, and SHA-256 after the matching asset exists.
+9. For an end-to-end release, update and validate the cask in
+   `androperator/homebrew-tap` after verifying the published universal ZIP. Commit
+   the version, URL, and downloaded SHA-256 on a tap branch and open or update its
+   PR. Report cask publication as pending until merged; merging or enabling
+   auto-merge requires an explicit request. Narrow version, packaging, tag, and
+   upload requests retain their requested scope.
 10. Validate the published ZIP on a clean test machine or user profile. Validate
    cask installation separately when that distribution channel is available.
 
@@ -132,34 +137,44 @@ stapler validate ADBuddy.app
 Use `ditto` when extracting release ZIPs during validation to avoid introducing
 AppleDouble files that can invalidate a signed bundle.
 
-## Planned Homebrew cask
+## Homebrew cask
 
-The cask should point at the immutable GitHub Release ZIP and declare the app
-bundle, macOS minimum version, homepage, and app data cleanup paths. A minimal
-future shape is:
+The cask points at the versioned universal GitHub Release ZIP and declares its
+SHA-256 checksum, app bundle, macOS minimum version, and homepage. This example
+uses a checksum placeholder; the tap must contain the downloaded ZIP's real hash:
 
 ```ruby
 cask "adbuddy" do
-  version "0.3.0"
-  sha256 "<release-sha256>"
+  version "1.0.0"
+  sha256 "<downloaded-release-sha256>"
 
-  url "https://github.com/clawperator/adbuddy/releases/download/v#{version}/ADBuddy-macos-universal-#{version}.zip"
+  url "https://github.com/androperator/adbuddy/releases/download/v#{version}/ADBuddy-macos-universal-#{version}.zip"
   name "ADBuddy"
-  desc "Native menu bar utility for Android developer tasks"
-  homepage "https://clawperator.com/"
+  desc "Android device and emulator developer tools"
+  homepage "https://github.com/androperator/adbuddy"
 
   depends_on macos: :sonoma
+
   app "ADBuddy.app"
+
+  zap trash: "~/Library/Preferences/com.clawperator.adbuddy.plist"
 end
 ```
 
-Do not publish this cask until its matching release asset and SHA-256 exist.
+For each release, publish and verify the app ZIP first, then update the cask
+version and SHA-256 in the tap. Validate the cask before publishing the tap change.
+The tap's npm updater maintains only the CLI and emulator formulae; it does not
+update the ADBuddy cask. Android SDK tools remain external. Emulator creation
+and deletion require Node.js 24+; emulator appearance tweaks require Node.js 22+.
+Node is optional for other app features, so the cask does not install it. Normal uninstall retains preferences and captures.
+`brew uninstall --cask --zap androperator/tap/adbuddy` also removes the legacy
+shared preferences file; captures remain untouched.
 
 ## Updates
 
 Direct-download installations use manual replacement with a newer release.
-Once Homebrew distribution is available, its installations should use
-`brew upgrade --cask`. There is no in-app updater. Do not add Sparkle yet:
+Homebrew installations should use
+`brew upgrade --cask androperator/tap/adbuddy`. There is no in-app updater. Do not add Sparkle yet:
 it adds a dependency and a second update channel before the core product is
 proven.
 
@@ -178,7 +193,9 @@ automation or change release credentials without an explicit request.
 The app also contains the immutable 1.0.2 tweaks archive pinned in
 [the dependency manifest](../bundled-dependencies.json). Packaging checks its SHA-256
 and includes its license/notice files inside the archive and
-[provenance documentation](../vendor/emulator-tweaks/README.md). Do not extract or
-re-sign its native assets inside the app: changing them breaks the CLI's manifest.
-Deep signature verification covers the app's archived resource bytes. Developer ID
-notarization must still be checked during an authorized public release.
+[provenance documentation](../vendor/emulator-tweaks/README.md). Apple inspects native binaries inside nested archives during notarization. Release
+packaging signs the launcher and icon helper in a temporary copy, updates their
+internal manifest hashes, and repacks the copy with a new archive checksum. The
+bundled manifest records both the packaged checksum and the upstream archive
+checksums. The vendored archive stays unchanged. The outer app signature seals
+the derived archive and its manifest; runtime integrity checks remain enabled.

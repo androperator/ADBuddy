@@ -3,12 +3,33 @@ import XCTest
 @testable import ADBuddyCore
 
 final class ADBuddySharedPreferencesTests: XCTestCase {
-    func testUsesStandardDefaultsWhenRunningInsideADBuddy() {
+    func testLegacyBundleUsesStandardDefaults() {
         let userDefaults = ADBuddySharedPreferences.userDefaults(
             bundleIdentifier: ADBuddySharedPreferences.suiteName
         )
 
         XCTAssertTrue(userDefaults === UserDefaults.standard)
+    }
+
+    func testRenamedAppAndHeadlessHelperShareExistingPreferences() {
+        let suiteName = "ADBuddySharedPreferencesTests.\(UUID().uuidString)"
+        let legacyDefaults = UserDefaults(suiteName: suiteName)!
+        defer { legacyDefaults.removePersistentDomain(forName: suiteName) }
+        legacyDefaults.set("/tmp/existing-media", forKey: ADBuddySharedPreferences.screenshotDirectoryPathKey)
+        legacyDefaults.set(12, forKey: ADBuddySharedPreferences.screenRecordingBitRateMegabitsPerSecondKey)
+
+        let appDefaults = ADBuddySharedPreferences.userDefaults(
+            bundleIdentifier: "com.androperator.adbuddy", suiteName: suiteName
+        )
+        let helperDefaults = ADBuddySharedPreferences.userDefaults(
+            bundleIdentifier: nil, suiteName: suiteName
+        )
+        XCTAssertFalse(appDefaults === UserDefaults.standard)
+        XCTAssertEqual(ADBuddySharedPreferences.mediaDestination(userDefaults: appDefaults).path, "/tmp/existing-media")
+        XCTAssertEqual(ADBuddySharedPreferences.screenRecordingOptions(userDefaults: helperDefaults).bitRateMegabitsPerSecond, 12)
+
+        appDefaults.set(50, forKey: ADBuddySharedPreferences.screenRecordingResolutionPercentageKey)
+        XCTAssertEqual(ADBuddySharedPreferences.screenRecordingOptions(userDefaults: helperDefaults).resolution, .fiftyPercent)
     }
 
     func testMediaDestinationUsesSavedSharedPath() {

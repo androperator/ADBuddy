@@ -2,7 +2,7 @@
 set -euo pipefail
 
 APP_NAME="ADBuddy"
-BUNDLE_ID="com.clawperator.adbuddy"
+BUNDLE_ID="com.androperator.adbuddy"
 MINIMUM_SYSTEM_VERSION="14.0"
 DEFAULT_SIGNING_IDENTITY="Developer ID Application: Action Launcher Pty. Ltd (5ZE38CVDGY)"
 
@@ -64,7 +64,7 @@ VERSION_FILE="$ROOT_DIR/VERSION"
 [[ -f "$MENU_BAR_GLYPH" ]] || fail "menu bar glyph is missing: $MENU_BAR_GLYPH"
 VERSION="$(<"$VERSION_FILE")"
 [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+){1,2}([.-][0-9A-Za-z]+)*$ ]] || \
-  fail "release version in $VERSION_FILE must look like 0.3.0"
+  fail "release version in $VERSION_FILE must look like 1.0.0"
 
 SIGNING_IDENTITY="${AD_BUDDY_SIGNING_IDENTITY:-$DEFAULT_SIGNING_IDENTITY}"
 NOTARY_PROFILE="${ADBUDDY_NOTARY_PROFILE:-${AD_BUDDY_NOTARY_PROFILE:-}}"
@@ -181,7 +181,7 @@ for variant in arm64 x86_64 universal; do
       <string>Alternate</string>
       <key>LSItemContentTypes</key>
       <array>
-        <string>com.clawperator.adbuddy.android-package-archive</string>
+        <string>com.androperator.adbuddy.android-package-archive</string>
       </array>
     </dict>
   </array>
@@ -189,7 +189,7 @@ for variant in arm64 x86_64 universal; do
   <array>
     <dict>
       <key>UTTypeIdentifier</key>
-      <string>com.clawperator.adbuddy.android-package-archive</string>
+      <string>com.androperator.adbuddy.android-package-archive</string>
       <key>UTTypeDescription</key>
       <string>Android Package Archive</string>
       <key>UTTypeConformsTo</key>
@@ -214,6 +214,7 @@ for variant in arm64 x86_64 universal; do
 PLIST
 
   "$ROOT_DIR/scripts/prepare_emulator_backend.sh" "$APP_CONTENTS"
+  python3 "$ROOT_DIR/scripts/sign_emulator_tweaks.py" "$APP_CONTENTS" "$SIGNING_IDENTITY"
   "$ROOT_DIR/scripts/prepare_recording_backend.sh" "$APP_CONTENTS" "$variant"
   LICENSES_DIRECTORY="$APP_CONTENTS/Resources/Recording/Licenses"
   mkdir -p "$LICENSES_DIRECTORY"
