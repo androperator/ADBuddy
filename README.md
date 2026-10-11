@@ -8,7 +8,7 @@ But you still need to capture screenshots, record bugs, inspect Logcat, and crea
 
 ADBuddy fills that gap: a small, native macOS app for everyday Android device tasks. Leave Android Studio closed.
 
-[**Download ADBuddy for macOS**](https://github.com/clawperator/adbuddy/releases/latest) · [Getting started](#get-started) · [MCP setup](docs/mcp.md)
+[**Download ADBuddy for macOS**](https://github.com/androperator/adbuddy/releases/latest) · [Getting started](#get-started) · [MCP setup](docs/mcp.md)
 
 ## Device and app controls
 
@@ -74,9 +74,17 @@ ADBuddy includes a local MCP server so your agent can discover devices, start or
 
 ## Get started
 
-1. [Download the latest release](https://github.com/clawperator/adbuddy/releases/latest), unzip it, and move **ADBuddy.app** to Applications. Choose Apple silicon (`arm64`), Intel (`x86_64`), or the universal download for either.
+1. [Download the latest release](https://github.com/androperator/adbuddy/releases/latest), unzip it, and move **ADBuddy.app** to Applications. Choose Apple silicon (`arm64`), Intel (`x86_64`), or the universal download for either.
 2. Install the **Android SDK**, including ADB (`platform-tools`), if you haven't already. ADBuddy finds the standard `~/Library/Android/sdk` location automatically.
 3. Connect a device with USB debugging enabled, or start an emulator. Open ADBuddy and get to work.
+
+The Homebrew cask in [androperator/homebrew-tap](https://github.com/androperator/homebrew-tap) also installs the app once published:
+
+```sh
+brew install --cask androperator/tap/adbuddy
+```
+
+Update Homebrew installations with `brew upgrade --cask androperator/tap/adbuddy`.
 
 Requires **macOS 14 or newer**. Emulator creation and deletion also need **Node.js 24+** and the SDK's emulator tools. [Setup, preferences, and workflow details →](docs/usage.md)
 
