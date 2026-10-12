@@ -96,7 +96,7 @@ final class EmulatorTweaksTests: XCTestCase {
         let hash = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
         try bytes.write(to: resources.appendingPathComponent("package.tgz"))
         try Data("""
-        {"emulatorTweaks":{"name":"@androperator/emulator-macos-tweaks","version":"1.0.3-local","sha256":"\(hash)"}}
+        {"emulatorTweaks":{"name":"@androperator/emulator-macos-tweaks","version":"1.0.3","sha256":"\(hash)"}}
         """.utf8).write(to: resources.appendingPathComponent("bundled-dependencies.json"))
         return root
     }

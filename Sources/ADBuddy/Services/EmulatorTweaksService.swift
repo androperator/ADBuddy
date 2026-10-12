@@ -61,7 +61,7 @@ struct EmulatorTweaksService: Sendable {
         let manifest = try JSONDecoder().decode(Manifest.self, from: Data(contentsOf: resources.appendingPathComponent("bundled-dependencies.json"))).emulatorTweaks
         let archive = resources.appendingPathComponent("package.tgz")
         let digest = SHA256.hash(data: try Data(contentsOf: archive)).map { String(format: "%02x", $0) }.joined()
-        guard manifest.name == "@androperator/emulator-macos-tweaks", manifest.version == "1.0.3-local", digest == manifest.sha256 else {
+        guard manifest.name == "@androperator/emulator-macos-tweaks", manifest.version == "1.0.3", digest == manifest.sha256 else {
             throw EmulatorCreationError("Bundled emulator tweaks are invalid. Reinstall ADBuddy.")
         }
         let temporary = FileManager.default.temporaryDirectory.appendingPathComponent("ADBuddyTweaks-\(UUID())")
