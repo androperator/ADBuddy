@@ -11,12 +11,12 @@
   },
   "emulatorTweaks": {
     "name": "@androperator/emulator-macos-tweaks",
-    "version": "1.0.2",
-    "archive": "vendor/emulator-tweaks/androperator-emulator-macos-tweaks-1.0.2.tgz",
-    "url": "https://registry.npmjs.org/@androperator/emulator-macos-tweaks/-/emulator-macos-tweaks-1.0.2.tgz",
-    "sha256": "d5e57722fb037afe51b6ce459193576b002e50332b1e3dcb9822fdf8540cf245",
-    "integrity": "sha512-QzbreOyLRulQ1NcQMaO6EBJqWv9GO0KvaxrTDTGbSc9puberWlC2u4Qy/kJdiY06BXiwpZnUy6CPTkmUoCpPfQ==",
+    "version": "1.0.3",
+    "archive": "vendor/emulator-tweaks/androperator-emulator-macos-tweaks-1.0.3.tgz",
+    "sha256": "cd32865b6784ba9d6e1c15708a7ea11c03e52c1b6e6854a40a9c114a973f34fa",
+    "integrity": "sha512-6oRv544vQAdSu1mOPIOLT7szxWBS8n5C2hgboF8wxpo5IdHZA39UvEUl29B9sa0yiHD6UCCNQdtqBddVA+CaOA==",
     "sourceRepository": "https://github.com/androperator/android-emulator-macos-tweaks",
-    "sourceCommit": "3141cee35a3a338264e5b19e8b680894bfafd25c"
+    "sourceCommit": "72eb55dfdfe037c3e56a9004379551975fa79483",
+    "url": "https://registry.npmjs.org/@androperator/emulator-macos-tweaks/-/emulator-macos-tweaks-1.0.3.tgz"
   }
 }

@@ -55,6 +55,8 @@ struct EmulatorTweaksSettingsSection: View {
                 Text(message).font(.callout).textSelection(.enabled)
             }
             if let status = store.status {
+                Text("Installed Android Emulator: \(status.revision ?? "unknown version") · Supported: \((status.supportedVersions ?? ["37.x (Apple Silicon)"]).joined(separator: ", "))")
+                    .font(.caption).textSelection(.enabled)
                 DisclosureGroup("Details") {
                     if let revision = status.revision {
                         Text("Installed emulator software: \(revision)").font(.caption)
@@ -97,6 +99,7 @@ struct EmulatorTweaksSettingsSection: View {
                 acceptsSigning: $acceptsSigning,
                 isApplied: isHealthyPatch,
                 canApply: store.status?.canApply == true && !store.isBusy,
+                unavailableReason: store.status?.summary ?? store.message ?? "Appearance status is unavailable. Refresh the SDK status in Settings.",
                 cancel: { showsSigningConfirmation = false },
                 apply: {
                     showsSigningConfirmation = false

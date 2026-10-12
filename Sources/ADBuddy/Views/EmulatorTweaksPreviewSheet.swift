@@ -5,6 +5,7 @@ struct EmulatorTweaksPreviewSheet: View {
     @State private var isRepairing = false
     let isApplied: Bool
     let canApply: Bool
+    let unavailableReason: String
     let cancel: () -> Void
     let apply: () -> Void
 
@@ -62,9 +63,10 @@ struct EmulatorTweaksPreviewSheet: View {
                         RoundedRectangle(cornerRadius: 10)
                             .strokeBorder(.orange.opacity(0.65), lineWidth: 1)
                     }
+                    .disabled(!canApply)
                     HStack {
                         if !canApply {
-                            Text("Apply is unavailable for the current SDK. Check its status in Settings.")
+                            Text(unavailableReason)
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                         Spacer()

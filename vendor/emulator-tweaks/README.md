@@ -1,7 +1,7 @@
 # Bundled emulator macOS tweaks
 
 ADBuddy vendors the unmodified published `@androperator/emulator-macos-tweaks`
-1.0.2 npm archive. Version, registry URL, integrity, SHA-256 and source commit are
+1.0.3 npm archive with broader 37.x compatibility. Version, registry URL, integrity, SHA-256 and source commit are
 pinned in [bundled-dependencies.json](../../bundled-dependencies.json).
 
 The archive includes its Apache-2.0 LICENSE and NOTICE.md artwork attribution.

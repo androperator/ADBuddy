@@ -82,9 +82,10 @@ and settings. Advanced AVD configuration and snapshot management are not include
 ## macOS emulator appearance
 
 Settings → Emulators shows an `ugly` or `pretty` appearance tag and offers
-**Learn More…** using bundled `@androperator/emulator-macos-tweaks` 1.0.2.
+**Learn More…** using bundled `@androperator/emulator-macos-tweaks` 1.0.3.
 The preview compares original and tweaked icons and links to the open-source
-project. Version and backup information live under **Details**.
+project. The installed and supported versions appear in Settings; backup information
+lives under **Details**.
 
 Healthy applied tweaks open an info-only preview with **Done** and **Repair…**.
 Applying or repairing requires a fresh signing acknowledgment before **Make Pretty**:
@@ -93,8 +94,9 @@ entitlements and hardened runtime. **Restore Original** reinstates the exact
 original and its Google signature. No developer certificate or private key is used.
 
 The patch affects all launches through the selected SDK, including Terminal and
-Android Studio. Restart running emulators to see changes. Version 1.0.2 supports
-Android Emulator 37.1.11 build 15917651 on Apple Silicon; unknown builds are refused.
+Android Studio. Restart running emulators to see changes. Version 1.0.3 supports Apple Silicon Android Emulator 37.x
+when its executable structure and embedded icons match the patch profile.
+Settings and the preview show the installed version and any compatibility failure.
 Node.js 22+ is required for tweaks, including later emulator launches with AVD names.
 The existing Node executable setting is shared with creation and deletion (24+).
 If that Node installation moves, select the new Node and use **Repair…** to apply again.
