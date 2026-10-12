@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.0.1] - 2026-10-13
+
+ADBuddy accepted more Apple Silicon emulator builds for macOS appearance tweaks and explained unsupported SDKs more clearly. Installation and release documentation also clarified the Homebrew distribution path.
+
+### macOS App
+
+- **Fixed:** Enabled appearance tweaks for structurally compatible Android Emulator 37.x builds on Apple Silicon, without requiring an exact emulator revision or executable hash. Exact backups, signing checks, and restoration protections were preserved.
+- **Fixed:** Showed installed and supported emulator versions and the specific compatibility failure in Settings and the preview. Disabled the signing acceptance section when Apply was unavailable.
+- **Fixed:** Kept the published 1.0.0 app identity, shared preferences compatibility, and signed bundled native helpers intact while incorporating its release preparation into main and connecting the published release history.
+
+### Documentation
+
+- **Added:** Documented Homebrew cask installation, upgrades, checksum validation, and the cask update stage in end-to-end releases.
+- **Changed:** Corrected distribution and recording-source links and clarified optional Node.js requirements.
+- **Changed:** Updated appearance compatibility guidance for the bundled tweaks 1.0.3 package, including installed versions and failure details.
+
+Pull requests:
+- [chore(release): merge published 1.0.0 release preparation](https://github.com/androperator/ADBuddy/pull/18)
+- [docs(distribution): correct links and document Homebrew installation](https://github.com/androperator/ADBuddy/pull/19)
+- [docs(release): include Homebrew cask updates and validation](https://github.com/androperator/ADBuddy/pull/20)
+- [test(logcat): avoid missing transient reconnect failure state](https://github.com/androperator/ADBuddy/pull/22)
+- [fix(emulators): broaden appearance tweak compatibility and explain unsupported SDKs](https://github.com/androperator/ADBuddy/pull/23)
+
 ## [1.0.0] - 2026-10-11
 
 ADBuddy 1.0 added optional emulator icons and names, improved emulator window handling, and made everyday device workflows easier to discover. This milestone also included the emulator creation, device controls, and Settings improvements introduced in 0.3.0.
