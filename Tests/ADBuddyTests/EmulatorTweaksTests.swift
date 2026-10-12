@@ -77,6 +77,16 @@ final class EmulatorTweaksTests: XCTestCase {
         XCTAssertTrue(status.summary.contains("repair"))
     }
 
+    func testUnsupportedStatusExplainsInstalledVersionAndCompatibility() throws {
+        let status = try JSONDecoder().decode(EmulatorTweaksStatus.self, from: Data("""
+        {"state":"unsupported","names":"off","revision":"37.1.10","supportedVersions":["37.x"],"compatibilityReason":"Expected exactly one 32px icon; found 0"}
+        """.utf8))
+        XCTAssertFalse(status.canApply)
+        XCTAssertTrue(status.summary.contains("37.1.10"))
+        XCTAssertTrue(status.summary.contains("37.x"))
+        XCTAssertTrue(status.summary.contains("found 0"))
+    }
+
     private var sdk: AndroidSDK { AndroidSDK(rootPath: "/SDK with spaces;literal", adbPath: "/SDK/adb", source: .standardLocation) }
     private func fixture() throws -> URL {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("TweaksTests-\(UUID())")
@@ -86,7 +96,7 @@ final class EmulatorTweaksTests: XCTestCase {
         let hash = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
         try bytes.write(to: resources.appendingPathComponent("package.tgz"))
         try Data("""
-        {"emulatorTweaks":{"name":"@androperator/emulator-macos-tweaks","version":"1.0.2","sha256":"\(hash)"}}
+        {"emulatorTweaks":{"name":"@androperator/emulator-macos-tweaks","version":"1.0.3-local","sha256":"\(hash)"}}
         """.utf8).write(to: resources.appendingPathComponent("bundled-dependencies.json"))
         return root
     }

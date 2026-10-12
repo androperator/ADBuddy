@@ -4,6 +4,8 @@ import Foundation
 struct EmulatorTweaksStatus: Decodable, Sendable {
     let state: String
     let revision: String?
+    let supportedVersions: [String]?
+    let compatibilityReason: String?
     let names: String
     let namingHealthy: Bool?
     let icons: String?
@@ -18,7 +20,7 @@ struct EmulatorTweaksStatus: Decodable, Sendable {
         case "patched": namingHealthy == false || runtimeHealthy == false
             ? "Tweaks need repair. Restore remains available."
             : "Tweaks applied: \(icons == "auto" ? "automatic device icons" : "phone icon")\(names == "avd" ? " and AVD names" : "")."
-        default: "This emulator build is unsupported. No files will be changed."
+        default: "Android Emulator \(revision ?? "unknown version") is unsupported. Supported: \((supportedVersions ?? ["37.x (Apple Silicon)"]).joined(separator: ", ")). \(compatibilityReason ?? "The executable layout does not match the bundled patch.")"
         }
     }
 }
@@ -59,7 +61,7 @@ struct EmulatorTweaksService: Sendable {
         let manifest = try JSONDecoder().decode(Manifest.self, from: Data(contentsOf: resources.appendingPathComponent("bundled-dependencies.json"))).emulatorTweaks
         let archive = resources.appendingPathComponent("package.tgz")
         let digest = SHA256.hash(data: try Data(contentsOf: archive)).map { String(format: "%02x", $0) }.joined()
-        guard manifest.name == "@androperator/emulator-macos-tweaks", manifest.version == "1.0.2", digest == manifest.sha256 else {
+        guard manifest.name == "@androperator/emulator-macos-tweaks", manifest.version == "1.0.3-local", digest == manifest.sha256 else {
             throw EmulatorCreationError("Bundled emulator tweaks are invalid. Reinstall ADBuddy.")
         }
         let temporary = FileManager.default.temporaryDirectory.appendingPathComponent("ADBuddyTweaks-\(UUID())")

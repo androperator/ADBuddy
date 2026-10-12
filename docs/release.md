@@ -190,7 +190,7 @@ automation or change release credentials without an explicit request.
 
 ## Bundled emulator tweaks
 
-The app also contains the immutable 1.0.2 tweaks archive pinned in
+The app also contains the unpublished 1.0.3-local tweaks archive pinned in
 [the dependency manifest](../bundled-dependencies.json). Packaging checks its SHA-256
 and includes its license/notice files inside the archive and
 [provenance documentation](../vendor/emulator-tweaks/README.md). Apple inspects native binaries inside nested archives during notarization. Release
