@@ -84,7 +84,8 @@ and settings. Advanced AVD configuration and snapshot management are not include
 Settings → Emulators shows an `ugly` or `pretty` appearance tag and offers
 **Learn More…** using bundled `@androperator/emulator-macos-tweaks` 1.0.3.
 The preview compares original and tweaked icons and links to the open-source
-project. Version and backup information live under **Details**.
+project. The installed and supported versions appear in Settings; backup information
+lives under **Details**.
 
 Healthy applied tweaks open an info-only preview with **Done** and **Repair…**.
 Applying or repairing requires a fresh signing acknowledgment before **Make Pretty**:
