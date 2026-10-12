@@ -63,6 +63,7 @@ struct EmulatorTweaksPreviewSheet: View {
                         RoundedRectangle(cornerRadius: 10)
                             .strokeBorder(.orange.opacity(0.65), lineWidth: 1)
                     }
+                    .disabled(!canApply)
                     HStack {
                         if !canApply {
                             Text(unavailableReason)
