@@ -34,9 +34,6 @@ The smaller downloads use `ADBuddy-macos-arm64-<version>.zip` and
 `ADBuddy-macos-x86_64-<version>.zip`. Each contains only its matching recorder
 helper and Android server resources.
 
-The current DHU helper pin is a locally packed development archive. Replace
-it with a verified published helper before a public release.
-
 Every app also includes the emulator helper pinned in
 [the root dependency manifest](../bundled-dependencies.json). Packaging verifies
 its checksum and includes the helper LICENSE/NOTICE and provenance. The same

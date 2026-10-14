@@ -4,11 +4,11 @@
 for the helper version, archive location, download URL, checksum and
 helper provenance. A copy ships in `Contents/Resources/Emulator` for inspection.
 
-The current DHU integration vendors a locally built `0.3.0-dev.0` npm archive
-from the exact source commit recorded in the manifest. It is not published to npm.
-Replace this development pin with a verified published archive before a public release.
-ADBuddy vendors the emulator npm archive named by the manifest. Packaging checks its SHA-256; SHA-512 integrity is recorded for the locally packed bytes. The manifest records the upstream source repository and commit.
-The helper supports protocol 1 and catalog.profiles/catalog.images. It uses only
+ADBuddy vendors the unmodified published `@androperator/emulator` 0.3.0 npm
+archive named by the manifest. Import verifies npm SHA-512 integrity, and
+packaging checks SHA-256 before extracting the exact archived bytes. The
+manifest records the upstream source repository and release commit.
+The helper supports protocol 1 and catalog.profiles/catalog.images/dhu. It uses only
 Node built-ins and relative modules, with no npm production runtime dependencies.
 The archive includes Apache-2.0 LICENSE, NOTICE and upstream provenance.
 TypeScript and @types/node are build-only dependencies and excluded from the app.

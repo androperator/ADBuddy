@@ -218,9 +218,8 @@ not require a certificate or modify the Android SDK.
 
 ## Android Auto verification
 
-The current bundled helper is a locally packed development archive from the
-source commit in `bundled-dependencies.json`; it is not an npm release.
-A public release must replace that pin with a verified published package.
+The bundled helper is the published `@androperator/emulator` 0.3.0 npm archive,
+with its integrity and source commit recorded in `bundled-dependencies.json`.
 
 Run the emulator helper's `npm run build` and `npm test`, then
 `scripts/test.sh ADBuddyTests.DesktopHeadUnitTests,ADBuddyTests.EmulatorCreationTests`

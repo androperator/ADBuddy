@@ -1,13 +1,13 @@
 {
   "emulator": {
     "name": "@androperator/emulator",
-    "version": "0.3.0-dev.0",
-    "archive": "vendor/emulator/androperator-emulator-0.3.0-dev.0.tgz",
-    "sha256": "71ec2252bd6150babfe95dbc60b3a2d816d98f9f3c8ddbcd2064a9bef649c73d",
-    "integrity": "sha512-AFx9VoeE1DYXmPqeQNVaI4d7QviR4DUGNvTRY6jziIS3W/GGw24x3fw1MrQ1BpqLB9ZJsDSAgZDUs+m5op6ChA==",
+    "version": "0.3.0",
+    "archive": "vendor/emulator/androperator-emulator-0.3.0.tgz",
+    "sha256": "cb8dad376c6d3a0c9874fb48e424bb782a06d8ed8d4149b9115d9e9546481ccf",
+    "integrity": "sha512-Xz+0Q9wAkxvgekoHWinnhMM9s8AbtNltOsh+dEXpLPC1rGFRNnoZjMhc33gXPwcOUo0u51HP8jg//19i7xd5eQ==",
     "sourceRepository": "https://github.com/androperator/androperator-emulator",
-    "sourceCommit": "dc98d448407d8beb57fc3449ebd6e570f856ca8c",
-    "distribution": "local-development"
+    "sourceCommit": "3322bbb479b6c582960bbd04bbee8ce44c6d5b11",
+    "url": "https://registry.npmjs.org/@androperator/emulator/-/emulator-0.3.0.tgz"
   },
   "emulatorTweaks": {
     "name": "@androperator/emulator-macos-tweaks",
