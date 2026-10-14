@@ -14,11 +14,19 @@ final class DesktopHeadUnitStore {
     private(set) var isBusy = false
     private(set) var activeSerial: String?
     private(set) var message: String?
+    private(set) var connectionEnded = false
     private(set) var deviceSetup: AndroidAutoDeviceSetup?
     private(set) var isCheckingDevice = false
     @ObservationIgnored private var deviceCheckID = UUID()
     @ObservationIgnored private var session: Task<Void, Never>?
     @ObservationIgnored private var setup: Task<Void, Never>?
+    @ObservationIgnored private let deviceExecute: AndroidAutoDeviceSetupService.Execute
+
+    init(deviceExecute: @escaping AndroidAutoDeviceSetupService.Execute = {
+        await ProcessRunner().run(executablePath: $0, arguments: $1)
+    }) {
+        self.deviceExecute = deviceExecute
+    }
 
     private func service(sdk: AndroidSDK?, configuration: EmulatorHelperConfiguration) async throws -> EmulatorCreationService {
         guard let sdk else { throw EmulatorCreationError("Locate an Android SDK in Settings before using Android Auto.") }
@@ -44,19 +52,19 @@ final class DesktopHeadUnitStore {
         }
     }
 
-    func checkDevice(serial: String, sdk: AndroidSDK?) async {
+    func checkDevice(serial: String, sdk: AndroidSDK?, clearMessage: Bool = true) async {
         let checkID = UUID()
         deviceCheckID = checkID
         deviceSetup = nil
-        message = nil
+        if clearMessage { message = nil; connectionEnded = false }
         guard !serial.isEmpty, let sdk else { isCheckingDevice = false; return }
         isCheckingDevice = true
         do {
-            let setup = try await AndroidAutoDeviceSetupService(adbPath: sdk.adbPath).check(serial: serial)
+            let setup = try await AndroidAutoDeviceSetupService(adbPath: sdk.adbPath, execute: deviceExecute).check(serial: serial)
             guard deviceCheckID == checkID, !Task.isCancelled else { return }
             deviceSetup = setup
         } catch {
-            if deviceCheckID == checkID, !Task.isCancelled { message = error.localizedDescription }
+            if deviceCheckID == checkID, !Task.isCancelled, clearMessage || message == nil { message = error.localizedDescription }
         }
         if deviceCheckID == checkID { isCheckingDevice = false }
     }
@@ -65,10 +73,10 @@ final class DesktopHeadUnitStore {
         guard let sdk, !serial.isEmpty, activeSerial == nil else { return }
         Task {
             do {
-                let service = AndroidAutoDeviceSetupService(adbPath: sdk.adbPath)
+                let service = AndroidAutoDeviceSetupService(adbPath: sdk.adbPath, execute: deviceExecute)
                 if update { try await service.openUpdate(serial: serial) }
                 else { try await service.openSettings(serial: serial) }
-                message = "Complete setup on the selected device, then choose Check Device."
+                message = nil
             } catch { message = error.localizedDescription }
         }
     }
@@ -77,11 +85,13 @@ final class DesktopHeadUnitStore {
         guard !isBusy, activeSerial == nil, !serial.isEmpty else { return }
         activeSerial = serial
         message = nil
+        connectionEnded = false
         session = Task {
+            var didLaunch = false
             defer { activeSerial = nil; session = nil }
             do {
                 guard let sdk else { throw EmulatorCreationError("Locate an Android SDK in Settings before using Android Auto.") }
-                let setup = try await AndroidAutoDeviceSetupService(adbPath: sdk.adbPath).check(serial: serial)
+                let setup = try await AndroidAutoDeviceSetupService(adbPath: sdk.adbPath, execute: deviceExecute).check(serial: serial)
                 deviceSetup = setup
                 guard setup.hasFullApp, setup.serverRunning != false else {
                     throw EmulatorCreationError(setup.guidance)
@@ -90,13 +100,16 @@ final class DesktopHeadUnitStore {
                 guard !Task.isCancelled else { return }
                 AppLogger.emulator.info("Starting Android Auto Desktop Head Unit")
                 struct Result: Decodable, Sendable { let serial: String; let stopped: Bool }
+                didLaunch = true
                 let result: Result = try await service.call(["dhu-start", serial])
                 guard result.serial == serial, result.stopped else {
                     throw EmulatorCreationError("The helper did not confirm the Desktop Head Unit closed.")
                 }
-                message = "Android Auto closed or disconnected. If the window closed unexpectedly, check the device setup and head unit server, then try again."
+                guard !Task.isCancelled else { return }
+                connectionEnded = true
+                message = "The Desktop Head Unit closed or disconnected. Check the device and its head unit server before trying again."
             } catch {
-                if !Task.isCancelled { message = error.localizedDescription }
+                if !Task.isCancelled { connectionEnded = didLaunch; message = error.localizedDescription }
             }
         }
     }

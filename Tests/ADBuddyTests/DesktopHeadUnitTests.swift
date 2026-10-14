@@ -98,5 +98,29 @@ final class DesktopHeadUnitTests: XCTestCase {
         for _ in 0..<20 where store.activeSerial != nil { await Task.yield() }
         XCTAssertNil(store.activeSerial)
         XCTAssertTrue(store.message?.contains("Android SDK") == true)
+        XCTAssertFalse(store.connectionEnded)
+        let failure = store.message
+        await store.checkDevice(serial: "phone", sdk: nil, clearMessage: false)
+        XCTAssertEqual(store.message, failure)
+        await store.checkDevice(serial: "phone", sdk: nil)
+        XCTAssertNil(store.message)
     }
+    @MainActor
+    func testFailedBackgroundCheckPreservesDiagnosticUntilExplicitRetry() async {
+        let store = DesktopHeadUnitStore { _, _ in
+            ProcessResult(standardOutput: Data(), standardError: Data("ADB unavailable".utf8), exitStatus: 1, durationMilliseconds: 1, failureDescription: nil, wasCancelled: false)
+        }
+        store.start(serial: "phone", sdk: nil, configuration: EmulatorHelperConfiguration(helperPath: "", nodePath: "", javaHome: ""))
+        for _ in 0..<20 where store.activeSerial != nil { await Task.yield() }
+        let original = store.message
+        XCTAssertTrue(original?.contains("Android SDK") == true)
+        let sdk = AndroidSDK(rootPath: "/fake-sdk", adbPath: "/fake-sdk/adb", source: .standardLocation)
+        await store.checkDevice(serial: "phone", sdk: sdk, clearMessage: false)
+        XCTAssertEqual(store.message, original)
+        XCTAssertFalse(store.isCheckingDevice)
+        await store.checkDevice(serial: "phone", sdk: sdk)
+        XCTAssertEqual(store.message, "ADB unavailable")
+        XCTAssertFalse(store.isCheckingDevice)
+    }
+
 }
