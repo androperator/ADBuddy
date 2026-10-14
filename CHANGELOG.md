@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.0.2] - 2026-10-14
+
+ADBuddy added Android Auto to Create Android Emulator, with phone setup guidance and session controls. It now bundles the published emulator helper 0.3.0.
+
+### macOS App
+
+- **Added:** Started and stopped Android Auto sessions for a selected connected phone, with emulator installation, phone setup guidance, and automatic cleanup of the session's ADB tunnel.
+- **Changed:** Included Android Auto in the Create Android Emulator device-type picker alongside the existing emulator types, with the picker available while other emulator options loaded.
+- **Changed:** Bundled the published `@androperator/emulator` 0.3.0 archive, including its fixes for explicit SDK paths and SDK discovery, with verified upstream integrity and provenance.
+
+### Documentation
+
+- **Added:** Documented Android Auto setup, session controls, and verification in the usage and development guides.
+- **Changed:** Replaced development-archive guidance with the published helper's version, integrity, and source provenance.
+
+Pull requests:
+None found
+
 ## [1.0.1] - 2026-10-13
 
 ADBuddy accepted more Apple Silicon emulator builds for macOS appearance tweaks and explained unsupported SDKs more clearly. Installation and release documentation also clarified the Homebrew distribution path.
