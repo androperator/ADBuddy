@@ -20,6 +20,13 @@ final class DesktopHeadUnitStore {
     @ObservationIgnored private var deviceCheckID = UUID()
     @ObservationIgnored private var session: Task<Void, Never>?
     @ObservationIgnored private var setup: Task<Void, Never>?
+    @ObservationIgnored private let deviceExecute: AndroidAutoDeviceSetupService.Execute
+
+    init(deviceExecute: @escaping AndroidAutoDeviceSetupService.Execute = {
+        await ProcessRunner().run(executablePath: $0, arguments: $1)
+    }) {
+        self.deviceExecute = deviceExecute
+    }
 
     private func service(sdk: AndroidSDK?, configuration: EmulatorHelperConfiguration) async throws -> EmulatorCreationService {
         guard let sdk else { throw EmulatorCreationError("Locate an Android SDK in Settings before using Android Auto.") }
@@ -53,11 +60,11 @@ final class DesktopHeadUnitStore {
         guard !serial.isEmpty, let sdk else { isCheckingDevice = false; return }
         isCheckingDevice = true
         do {
-            let setup = try await AndroidAutoDeviceSetupService(adbPath: sdk.adbPath).check(serial: serial)
+            let setup = try await AndroidAutoDeviceSetupService(adbPath: sdk.adbPath, execute: deviceExecute).check(serial: serial)
             guard deviceCheckID == checkID, !Task.isCancelled else { return }
             deviceSetup = setup
         } catch {
-            if deviceCheckID == checkID, !Task.isCancelled { message = error.localizedDescription }
+            if deviceCheckID == checkID, !Task.isCancelled, clearMessage || message == nil { message = error.localizedDescription }
         }
         if deviceCheckID == checkID { isCheckingDevice = false }
     }
@@ -66,7 +73,7 @@ final class DesktopHeadUnitStore {
         guard let sdk, !serial.isEmpty, activeSerial == nil else { return }
         Task {
             do {
-                let service = AndroidAutoDeviceSetupService(adbPath: sdk.adbPath)
+                let service = AndroidAutoDeviceSetupService(adbPath: sdk.adbPath, execute: deviceExecute)
                 if update { try await service.openUpdate(serial: serial) }
                 else { try await service.openSettings(serial: serial) }
                 message = nil
@@ -84,7 +91,7 @@ final class DesktopHeadUnitStore {
             defer { activeSerial = nil; session = nil }
             do {
                 guard let sdk else { throw EmulatorCreationError("Locate an Android SDK in Settings before using Android Auto.") }
-                let setup = try await AndroidAutoDeviceSetupService(adbPath: sdk.adbPath).check(serial: serial)
+                let setup = try await AndroidAutoDeviceSetupService(adbPath: sdk.adbPath, execute: deviceExecute).check(serial: serial)
                 deviceSetup = setup
                 guard setup.hasFullApp, setup.serverRunning != false else {
                     throw EmulatorCreationError(setup.guidance)
