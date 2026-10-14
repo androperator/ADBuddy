@@ -272,3 +272,19 @@ confirmed its Input Monitoring request failed at the blocked permission-broker
 connection and startup reached the ADB connection attempt. A disconnected
 loopback endpoint was used; no phone handshake or voice input was verified.
 The SDK binary was not changed or re-signed.
+
+## Android Auto device setup verification
+
+Run `scripts/test.sh ADBuddyTests.AndroidAutoDeviceSetupTests,ADBuddyTests.DesktopHeadUnitTests`
+for app-version classification, IPv4/IPv6 server listening checks, unavailable
+socket inspection, device-specific setup actions, and protected launch.
+
+Live verification on 2026-10-15 reproduced an immediate DHU transport disconnect
+with exit code zero against a Google Play emulator containing only the Android
+Auto stub. The emulator's Play Store required sign-in. A connected Pixel 10 Pro
+had the full app and developer mode enabled, but its head-unit server was stopped.
+The new settings action opened Android Auto on that device; starting its server
+and rechecking enabled Start. ADBuddy launched a persistent DHU session under
+input protection. A separate protected DHU verification session completed the
+phone handshake and captured its real dashboard using the DHU screenshot command.
+Maps requested phone-side location access, which was not granted during testing.

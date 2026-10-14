@@ -23,6 +23,7 @@ struct AndroidAutoConfigurationView: View {
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
         }
+        .task(id: serial) { await store.checkDevice(serial: serial, sdk: devices.resolvedSDK) }
         .task {
             serial = store.activeSerial ?? availableDevices.first?.serial ?? ""
             store.refresh(sdk: devices.resolvedSDK, configuration: preferences.emulatorHelperConfiguration)
@@ -31,17 +32,36 @@ struct AndroidAutoConfigurationView: View {
 
     private var configuration: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Choose the phone that will run Android Auto.")
+            Text("Choose a phone or Google Play emulator to run Android Auto.")
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             Text("On your phone, update Android Auto, enable its developer mode, choose Start head unit server, enable Add new cars to Android Auto, and unlock the screen. Accept connection prompts on the phone.")
                 .fixedSize(horizontal: false, vertical: true)
             Link("Android Auto setup guide", destination: URL(string: "https://developer.android.com/training/cars/testing/dhu")!)
-            Picker("Phone", selection: $serial) {
+            Picker("Android device", selection: $serial) {
                 Text("Choose a device").tag("")
                 ForEach(availableDevices) { device in Text(device.displayName).tag(device.serial) }
             }
             .disabled(store.activeSerial != nil)
+            if store.isCheckingDevice {
+                ProgressView("Checking device setup…").controlSize(.small)
+            } else if let setup = store.deviceSetup {
+                Text(setup.guidance)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            HStack {
+                Button("Update Android Auto") {
+                    store.openDeviceSetup(serial: serial, sdk: devices.resolvedSDK, update: true)
+                }
+                Button("Open Android Auto Settings") {
+                    store.openDeviceSetup(serial: serial, sdk: devices.resolvedSDK, update: false)
+                }
+                Button("Check Device") {
+                    Task { await store.checkDevice(serial: serial, sdk: devices.resolvedSDK) }
+                }
+            }
+            .disabled(serial.isEmpty || store.activeSerial != nil || store.isCheckingDevice)
             if let status = store.status {
                 Label(status.executableReady ? "Android Auto emulator installed" : "Android Auto emulator needs setup",
                       systemImage: status.executableReady ? "checkmark.circle" : "arrow.down.circle")
@@ -83,7 +103,7 @@ struct AndroidAutoConfigurationView: View {
                 Button("Start Android Auto") {
                     store.start(serial: serial, sdk: devices.resolvedSDK, configuration: preferences.emulatorHelperConfiguration)
                 }
-                .disabled(store.isBusy || store.status?.executableReady != true || !availableDevices.contains(where: { $0.serial == serial }))
+                .disabled(store.isBusy || store.isCheckingDevice || store.deviceSetup?.hasFullApp != true || store.deviceSetup?.serverRunning == false || store.status?.executableReady != true || !availableDevices.contains(where: { $0.serial == serial }))
                 .keyboardShortcut(.defaultAction)
             }
         }
