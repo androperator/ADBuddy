@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(\.openWindow) private var openWindow
+    @Environment(DesktopHeadUnitStore.self) private var desktopHeadUnit
     @Environment(DeviceStore.self) private var deviceStore
     @Environment(EmulatorStore.self) private var emulatorStore
     @Environment(AppPreferences.self) private var preferences
@@ -235,7 +236,7 @@ struct ContentView: View {
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     EmulatorCreationWindowController.shared.show(
-                        preferences: preferences, deviceStore: deviceStore, emulatorStore: emulatorStore
+                        preferences: preferences, deviceStore: deviceStore, emulatorStore: emulatorStore, desktopHeadUnit: desktopHeadUnit
                     )
                 } label: {
                     Label("Create Android Emulator", systemImage: "plus.rectangle")

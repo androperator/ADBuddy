@@ -31,6 +31,7 @@ enum EmulatorHardwareType: String, CaseIterable, Identifiable, Sendable {
     case foldable = "Foldable"
     case tv = "TV"
     case automotive = "Automotive"
+    case androidAuto = "Android Auto"
     case wearOS = "Wear OS"
     case desktop = "Desktop"
     case xr = "XR"

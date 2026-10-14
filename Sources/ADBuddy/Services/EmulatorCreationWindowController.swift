@@ -7,7 +7,7 @@ final class EmulatorCreationWindowController: NSObject, NSWindowDelegate {
     private var window: NSWindow?
     private var store: EmulatorCreationStore?
 
-    func show(preferences: AppPreferences, deviceStore: DeviceStore, emulatorStore: EmulatorStore) {
+    func show(preferences: AppPreferences, deviceStore: DeviceStore, emulatorStore: EmulatorStore, desktopHeadUnit: DesktopHeadUnitStore) {
         if let window {
             window.makeKeyAndOrderFront(nil)
             return
@@ -24,6 +24,7 @@ final class EmulatorCreationWindowController: NSObject, NSWindowDelegate {
         .environment(preferences)
         .environment(deviceStore)
         .environment(emulatorStore)
+        .environment(desktopHeadUnit)
         let hosting = NSHostingView(rootView: content)
         let window = NSWindow(contentRect: .zero, styleMask: [.titled, .closable], backing: .buffered, defer: false)
         window.title = "Create Android Emulator"

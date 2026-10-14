@@ -215,3 +215,32 @@ to validate derived tweaks archives using ad-hoc signing. The checks verify
 upstream integrity validation, unchanged non-native payloads, corrupt-archive
 rejection, and preservation of the original archive when signing fails. They do
 not require a certificate or modify the Android SDK.
+
+## Android Auto verification
+
+The bundled helper is the published `@androperator/emulator` 0.3.0 npm archive,
+with its integrity and source commit recorded in `bundled-dependencies.json`.
+
+Run the emulator helper's `npm run build` and `npm test`, then
+`scripts/test.sh ADBuddyTests.DesktopHeadUnitTests,ADBuddyTests.EmulatorCreationTests`
+and `scripts/build_and_run.sh --verify`. In Create Android Emulator, choose the Android Auto device type and verify
+missing-package guidance, installation failures, device selection, Start and
+Stop. With a configured phone, enable its head unit server, unlock it, and
+accept first-connection prompts. Verify the DHU window connects and its owned
+forward disappears after Stop, window close and app quit. Keep unrelated
+forwards and devices intact. Unit checks use fake SDK tools and do not prove
+a real Android Auto handshake.
+
+DHU integration validation (2026-10-14): 39 emulator helper tests passed,
+including a real CLI SIGTERM test with disposable fake SDK executables that
+checks child termination and tunnel cleanup. All 20 focused Swift tests passed
+with packaged-helper runtime verification enabled. The packaged app built and
+launched, and the native Android Auto panel detected the installed SDK DHU.
+No physical phone was connected, so an Android Auto handshake was not verified.
+
+Unified creation UI verification (2026-10-14): Android Auto appears in the
+Create Android Emulator device-type picker alongside standard emulator types.
+The separate toolbar entry is removed. Native UI checks confirmed the Phone
+form and Android Auto installation/device/start controls in the same window.
+20 focused tests passed; the unchanged packaged-helper runtime test was skipped
+in this layout pass and passed in the prior integration verification.

@@ -123,6 +123,17 @@ current product contract; they are not an outstanding implementation plan.
 - When Show taps is enabled, preserve the existing Android setting and restore
   it when the recording finishes.
 
+### Android Auto
+
+- Offer Android Auto in the Create Android Emulator device-type picker, with
+  phone selection, installation and Start/Stop controls in that same window.
+- Check and explicitly install Google's SDK Desktop Head Unit package without accepting licenses.
+- Select a usable ADB device and run one DHU session with an allocated ADB tunnel.
+- Explain phone-side Android Auto setup and surface setup and launch failures.
+- Stop the owned session and remove its forward on DHU exit, Stop or app quit.
+- Closing the creation window retains the session. USB accessory transport, console commands
+  and custom vehicle configuration are deferred.
+
 ### Emulator management
 
 - Offer **Delete Emulator…** in stopped-AVD action and contextual menus. Confirm
@@ -134,9 +145,9 @@ current product contract; they are not an outstanding implementation plan.
   Use the pinned bundled `@androperator/emulator` helper with catalog
   capabilities and an externally installed Node.js 24+ runtime. Settings provides explicit helper,
   Node and Java path overrides for development, with checked version and paths.
-- Select a hardware type first (Phone, Tablet, Foldable, TV, Automotive, Wear OS,
+- Select a hardware type first (Phone, Tablet, Foldable, TV, Automotive, Android Auto, Wear OS,
   Desktop, XR, Glasses, or Other), then a profile from that type and a matching
-  native-architecture image. Only types present in the SDK catalog are shown.
+  native-architecture image. AVD types come from the SDK catalog; Android Auto is always available.
   Load installed images first and automatically fetch downloadable choices. Keep
   installed images available if the remote catalog fails, with a retry action.
   Mark installed choices with a drive icon and remote choices with a download icon. Reserve the native checkmark for the selected image; creation downloads the selected image.
@@ -147,9 +158,9 @@ current product contract; they are not an outstanding implementation plan.
   prerequisite and license failures visibly. Offer **Create** and **Create & Start** actions, with **Create & Start** as the
   default Return-key action. Create leaves the emulator stopped; Create & Start
   launches it after successful creation. Use the red close button or Escape to cancel.
-- Initial loading hides the form and entire footer, including the separator, with a
-  progress indicator centered across the full window content while preserving
-  window size. Its native red close button and Escape dismiss it except during
+- Initial AVD loading hides the configuration form and footer, including the
+  separator, while keeping device-type selection available. A centered progress
+  indicator preserves the window size. Its native red close button and Escape dismiss it except during
   creation. Both creation buttons remain hidden until local options are ready;
   Escape remains available during loading. Errors expose recovery controls. Downloadable images then load quietly without disabling the form or
   creation with an installed image. Creation progress, validation, and retry controls

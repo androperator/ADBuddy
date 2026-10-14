@@ -4,18 +4,19 @@
 for the helper version, archive location, download URL, checksum and
 helper provenance. A copy ships in `Contents/Resources/Emulator` for inspection.
 
-ADBuddy vendors the unmodified published emulator npm archive named by the
-manifest. Packaging checks its SHA-256; npm SHA-512 integrity was verified on
-import. The manifest records the upstream source repository and commit.
-The helper supports protocol 1 and catalog.profiles/catalog.images. It uses only
+ADBuddy vendors the unmodified published `@androperator/emulator` 0.3.0 npm
+archive named by the manifest. Import verifies npm SHA-512 integrity, and
+packaging checks SHA-256 before extracting the exact archived bytes. The
+manifest records the upstream source repository and release commit.
+The helper supports protocol 1 and catalog.profiles/catalog.images/dhu. It uses only
 Node built-ins and relative modules, with no npm production runtime dependencies.
 The archive includes Apache-2.0 LICENSE, NOTICE and upstream provenance.
 TypeScript and @types/node are build-only dependencies and excluded from the app.
 
 Normal packaging uses these exact archived bytes without npm or a local helper
 checkout. To verify source tests, check out the source commit in the manifest, run `npm ci`
-against its lockfile, then `npm run build` and `npm test` with Node 24+. The npm
-release archive is the pin; no custom version rewrite or local repack is required.
+against its lockfile, then `npm run build` and `npm test` with Node 24+. The checked-in npm
+archive is the pin; packaging never repacks it.
 Update the pin only after contract tests and packaged runtime verification.
 
 `scripts/prepare_emulator_backend.sh` packages only the JavaScript helper and

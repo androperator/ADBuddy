@@ -18,33 +18,43 @@ struct EmulatorCreationView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            configurationForm
-                .opacity(store.isReady ? 1 : 0)
-                .allowsHitTesting(store.isReady)
-                .accessibilityHidden(!store.isReady)
-                .overlay {
-                    if !store.isReady, store.errorMessage != nil {
-                        if store.needsNodeRuntime {
-                            nodeSetup
-                        } else {
-                            Text("Emulator options couldn’t be loaded.")
-                                .foregroundStyle(.secondary)
+            deviceTypePicker
+                .padding(.horizontal, 24)
+                .padding(.top, 24)
+                .disabled(store.isCreating)
+            if store.hardwareType == .androidAuto {
+                AndroidAutoConfigurationView()
+                    .padding(24)
+            } else {
+                configurationForm
+                    .opacity(store.isReady ? 1 : 0)
+                    .allowsHitTesting(store.isReady)
+                    .accessibilityHidden(!store.isReady)
+                    .overlay {
+                        if !store.isReady, store.errorMessage != nil {
+                            if store.needsNodeRuntime {
+                                nodeSetup
+                            } else {
+                                Text("Emulator options couldn’t be loaded.")
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
-                }
-                .padding(24)
-            Divider()
-                .opacity(isInitiallyLoading ? 0 : 1)
-            footer
-                .padding(.horizontal, 24)
-                .padding(.vertical, 8)
-                .opacity(isInitiallyLoading ? 0 : 1)
-                .allowsHitTesting(!isInitiallyLoading)
-                .accessibilityHidden(isInitiallyLoading)
+                    .padding(24)
+                Spacer(minLength: 0)
+                Divider()
+                    .opacity(isInitiallyLoading ? 0 : 1)
+                footer
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 8)
+                    .opacity(isInitiallyLoading ? 0 : 1)
+                    .allowsHitTesting(!isInitiallyLoading)
+                    .accessibilityHidden(isInitiallyLoading)
+            }
         }
-        .frame(width: 600)
+        .frame(width: 600, height: 400)
         .overlay {
-            if isInitiallyLoading {
+            if isInitiallyLoading, store.hardwareType != .androidAuto {
                 ProgressView("Loading emulator options…")
             }
         }
@@ -60,6 +70,23 @@ struct EmulatorCreationView: View {
         }
         .onChange(of: store.createdName) { _, name in
             if name != nil { dismiss() }
+        }
+    }
+
+    private var deviceTypePicker: some View {
+        Grid(alignment: .leading, horizontalSpacing: 16) {
+            GridRow {
+                fieldLabel("Device type")
+                Picker("Device type", selection: $store.hardwareType) {
+                    ForEach(store.availableHardwareTypes) { Text($0.rawValue).tag($0) }
+                    if !store.availableHardwareTypes.contains(store.hardwareType) {
+                        Text(store.hardwareType.rawValue).tag(store.hardwareType)
+                    }
+                }
+                .labelsHidden().frame(width: 412)
+                .focused($isDeviceTypeFocused)
+                .onChange(of: store.hardwareType) { _, _ in store.selectHardwareType() }
+            }
         }
     }
 
@@ -84,16 +111,6 @@ struct EmulatorCreationView: View {
 
     private var configurationForm: some View {
         Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 12) {
-            GridRow {
-                fieldLabel("Device type")
-                Picker("Device type", selection: $store.hardwareType) {
-                    ForEach(store.availableHardwareTypes) { Text($0.rawValue).tag($0) }
-                    if store.profiles.isEmpty { Text("Loading devices…").tag(store.hardwareType) }
-                }
-                .labelsHidden().frame(width: 412)
-                .focused($isDeviceTypeFocused)
-                .onChange(of: store.hardwareType) { _, _ in store.selectHardwareType() }
-            }
             GridRow {
                 fieldLabel("Device")
                 Picker("Device", selection: $store.profileID) {
