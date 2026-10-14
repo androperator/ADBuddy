@@ -473,3 +473,14 @@ If protection is unavailable or rejected, launch fails without an unrestricted
 retry. Google's SDK binary and signature are unchanged. Normal window input
 uses Cocoa rather than raw HID access. New direct microphone permission
 requests are also blocked; live voice input remains unverified.
+
+
+`AndroidAutoDeviceSetupService` checks the selected device's Android Auto package
+version and its listening TCP socket on port 5277 using resolved ADB. Stub or
+missing packages require a Google Play update; a confirmed stopped server blocks
+Start. Restricted socket inspection is reported as unknown rather than stopped.
+The store repeats the check before launch, and ignores stale device-check results
+after selection changes. Device setup actions open the official Play listing or
+Android Auto settings through explicit ADB argument arrays. A process closing
+does not prove a successful projection session; the UI describes closure or
+disconnection and gives recovery guidance.

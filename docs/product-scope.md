@@ -130,7 +130,11 @@ current product contract; they are not an outstanding implementation plan.
 - Keep the device-type picker and session actions visible while setup content scrolls.
   Display SDK setup progress in the footer without changing the window size.
 - Check and explicitly install Google's SDK Desktop Head Unit package without accepting licenses.
-- Select a usable ADB device and run one DHU session with an allocated ADB tunnel.
+- Select a usable Android device and run one DHU session with an allocated ADB tunnel.
+- Check that the selected device has the full Android Auto app and a listening head-unit
+  server before launch. Explain stub updates and server setup in the creation window,
+  with actions to open Google Play, Android Auto settings, and recheck the device.
+  If Android restricts socket inspection, explain that the server check is unavailable.
 - Explain phone-side Android Auto setup and surface setup and launch failures.
 - Prevent the DHU from requesting system-wide keystroke access. Launch with
   per-process input protection and refuse to fall back to an unprotected launch.
