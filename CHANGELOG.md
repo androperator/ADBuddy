@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.0.3] - 2026-10-15
+
+ADBuddy prevented Android Auto setup from requesting system-wide keystroke access and kept its download UI within the Create Android Emulator window.
+
+### macOS App
+
+- **Fixed:** Blocked the Android Auto emulator's raw input access and direct Input Monitoring permission request. Refused to launch when protection was unavailable, while preserving Google's signed SDK binary. New direct microphone permission requests were also blocked; voice input remains unverified.
+- **Fixed:** Kept the device-type picker, setup progress, and session controls visible during Android Auto SDK downloads. Setup content and long errors scrolled within the fixed window.
+
+### Documentation
+
+- **Added:** Documented Android Auto input protection, its verification, and the limits of phone and voice-input testing.
+- **Added:** Documented download-state and long-error layout checks in the shared creation window.
+
+Pull requests:
+None found
+
 ## [1.0.2] - 2026-10-14
 
 ADBuddy added Android Auto to Create Android Emulator, with phone setup guidance and session controls. It now bundles the published emulator helper 0.3.0.
