@@ -130,6 +130,8 @@ current product contract; they are not an outstanding implementation plan.
 - Check and explicitly install Google's SDK Desktop Head Unit package without accepting licenses.
 - Select a usable ADB device and run one DHU session with an allocated ADB tunnel.
 - Explain phone-side Android Auto setup and surface setup and launch failures.
+- Prevent the DHU from requesting system-wide keystroke access. Launch with
+  per-process input protection and refuse to fall back to an unprotected launch.
 - Stop the owned session and remove its forward on DHU exit, Stop or app quit.
 - Closing the creation window retains the session. USB accessory transport, console commands
   and custom vehicle configuration are deferred.

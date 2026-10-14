@@ -244,3 +244,18 @@ The separate toolbar entry is removed. Native UI checks confirmed the Phone
 form and Android Auto installation/device/start controls in the same window.
 20 focused tests passed; the unchanged packaged-helper runtime test was skipped
 in this layout pass and passed in the prior integration verification.
+
+## Android Auto input protection
+
+The DHU must not prompt for Input Monitoring. Run
+`scripts/test.sh ADBuddyTests.DesktopHeadUnitTests` to check protected launch
+arguments, failure handling and the real child-process policy. The latter
+compiles a disposable macOS probe and verifies raw HID control is denied and
+`IOHIDRequestAccess` returns false without granting any permission. It never
+reads keystrokes or changes OS privacy settings.
+
+Live startup verification on the installed Google-signed DHU 2.0 (2026-10-15)
+confirmed its Input Monitoring request failed at the blocked permission-broker
+connection and startup reached the ADB connection attempt. A disconnected
+loopback endpoint was used; no phone handshake or voice input was verified.
+The SDK binary was not changed or re-signed.
