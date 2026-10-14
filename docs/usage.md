@@ -81,8 +81,9 @@ and settings. Advanced AVD configuration and snapshot management are not include
 
 ## Android Auto
 
-Choose **Android Auto** (the car button) in the main toolbar. Install the
-Desktop Head Unit if prompted, choose a connected device, and click
+Choose **Create Android Emulator** in the main toolbar, then select
+**Android Auto** as the device type. Install the Android Auto emulator if
+prompted, choose a connected phone, and click
 **Start Android Auto**. Node.js 24+, SDK-compatible Java and accepted SDK
 licenses are required for installation. The DHU package stays in your SDK.
 
@@ -92,13 +93,13 @@ the screen. Accept the first connection prompts on the phone. The panel links
 to [Google's setup guide](https://developer.android.com/training/cars/testing/dhu).
 
 **Stop**, closing the DHU window, or quitting ADBuddy ends the session and
-removes its temporary ADB forward. **Done** closes the panel while the session
-continues; reopen Android Auto to stop it. One DHU session runs at a time.
+removes its temporary ADB forward. Closing Create Android Emulator retains the session; reopen the window
+and select Android Auto to stop it. One DHU session runs at a time.
 The session indicator describes the process lifetime, not a verified connection
 to Android Auto. Existing ADB forwards are retained.
 
-Android Auto is separate from Android Automotive OS. Use **Create Android
-Emulator → Automotive** for the latter. DHU console commands, USB accessory
+Select **Automotive** in the same device-type picker for Android Automotive OS.
+DHU console commands, USB accessory
 transport and custom car configurations are not exposed in this initial UI.
 
 ## macOS emulator appearance

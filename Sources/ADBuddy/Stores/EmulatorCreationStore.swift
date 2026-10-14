@@ -30,7 +30,7 @@ final class EmulatorCreationStore {
     }
 
     var availableHardwareTypes: [EmulatorHardwareType] {
-        EmulatorHardwareType.allCases.filter { type in profiles.contains { $0.hardwareType == type } }
+        EmulatorHardwareType.allCases.filter { type in type == .androidAuto || profiles.contains { $0.hardwareType == type } }
     }
     var availableProfiles: [EmulatorHardwareProfile] { profiles.filter { $0.hardwareType == hardwareType } }
     var selectedProfile: EmulatorHardwareProfile? { availableProfiles.first { $0.id == profileID } }

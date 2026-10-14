@@ -2,6 +2,17 @@ import XCTest
 @testable import ADBuddy
 
 final class DesktopHeadUnitTests: XCTestCase {
+    @MainActor
+    func testAndroidAutoIsAvailableWithoutAVDCatalogAndDoesNotSelectAVDInputs() {
+        let store = EmulatorCreationStore()
+        XCTAssertTrue(store.availableHardwareTypes.contains(.androidAuto))
+        store.hardwareType = .androidAuto
+        store.selectHardwareType()
+        XCTAssertNil(store.selectedProfile)
+        XCTAssertNil(store.selectedImage)
+        XCTAssertTrue(store.availableImages.isEmpty)
+    }
+
     func testStatusDecodesThroughHelperContract() async throws {
         let invocation = EmulatorHelperInvocation(node: "/node", script: "/helper", environment: [:])
         let service = EmulatorCreationService(invocation: invocation) { executable, arguments, _ in

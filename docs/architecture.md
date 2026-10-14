@@ -450,8 +450,9 @@ copies the installed naming runtime into its own durable backup generation.
 ## Android Auto Desktop Head Unit
 
 `DesktopHeadUnitStore` owns app-scoped setup and one cancellable DHU session.
-`DesktopHeadUnitView` presents installation, device selection, setup guidance
-and Start/Stop actions. The store uses `EmulatorCreationService` and the same
+`AndroidAutoConfigurationView` presents installation, phone selection, setup
+guidance and Start/Stop actions inside `EmulatorCreationView`, selected through
+its device-type picker. The creation window receives the shared session store. The store uses `EmulatorCreationService` and the same
 explicit SDK, Node, Java and helper selection as emulator creation, requiring
 the helper's `dhu` capability. Normal app quit awaits session cleanup.
 

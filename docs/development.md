@@ -1,240 +1,67 @@
-# Development
+import SwiftUI
 
-## Setup
+struct AndroidAutoConfigurationView: View {
+    @Environment(DeviceStore.self) private var devices
+    @Environment(AppPreferences.self) private var preferences
+    @Environment(DesktopHeadUnitStore.self) private var store
+    @State private var serial = ""
 
-- macOS 14 or newer;
-- Xcode, its command-line tools, and a Swift toolchain compatible with
-  `Package.swift`;
-- CMake, pkg-config, Python 3, and network access for the first bundled recorder
-  build; see [recording-backend.md](recording-backend.md);
-- an Android SDK containing `platform-tools/adb` for live-device checks;
-- externally installed Node.js 24+ for emulator creation and deletion.
+    private var availableDevices: [AndroidDevice] { devices.devices.filter(\.isUsable) }
 
-The local scripts use the selected Xcode installation. If Xcode setup is
-incomplete, they can use separately installed Command Line Tools with the
-macOS 26.5 SDK. Full Xcode must still be installed for the XCTest frameworks
-and runner. The scripts do not accept Xcode licenses or change the system's
-developer-directory selection. Release builds require fully configured Xcode.
-
-## Build and run
-
-From the repository root:
-
-```sh
-scripts/build_and_run.sh
-```
-
-This stops the previous local app instance, builds the SwiftPM package, packages
-and ad-hoc signs `dist/ADBuddy.app`, and launches it. Use the packaged app for
-GUI testing so bundle identity and macOS activation match normal app usage.
-The bundle version comes from `VERSION`.
-
-For a launch smoke check:
-
-```sh
-scripts/build_and_run.sh --verify
-```
-
-This performs the same build and launch, then checks that the app process is
-running after one second. It does not verify UI behavior or device operations.
-For public signing, notarization, and packaging, see [release.md](release.md).
-
-## Tests
-
-Run the suite or select relevant test classes:
-
-```sh
-scripts/test.sh
-scripts/test.sh ADBuddyTests.AndroidVirtualDeviceDetailsServiceTests,ADBuddyTests.AndroidEmulatorServiceTests
-```
-
-The script builds the tests and invokes XCTest directly. With fully configured
-Xcode, ordinary `swift build` and `swift test` are also available. Unit tests use
-fake process runners and do not require an Android SDK or connected device;
-passing them does not prove live ADB behavior.
-
-### Pull request checks
-
-[The Tests workflow](../.github/workflows/tests.yml) runs the complete unit suite
-on every pull request update and on pushes to `main`. It uses a standard
-`macos-26` runner with Xcode 26.6 and invokes `scripts/test.sh`. The stable
-check name is `macOS tests`; GitHub branch protection requires this check to
-pass before merging into `main`. New commits cancel superseded test runs.
-
-These checks compile the app, core library, and MCP helper, but do not package
-or launch the app, build the bundled recorder, or verify live Android behavior.
-No signing credentials or connected devices are required.
-
-Manual checks live with the features they verify:
-
-- [Product workflows](product-scope.md#manual-verification): discovery,
-  screenshots, emulators, app actions, installation, and Settings.
-- [Recording](recording-backend.md#manual-verification): options, rotation,
-  fold transitions, saved clips, and Show taps restoration.
-- [Logcat](logcat.md#verification): streaming, filtering, inspection, and layout.
-- [MCP](mcp.md#verification): protocol smoke checks and agent media capture.
-
-## Debugging
-
-Each mode rebuilds and packages the app before starting:
-
-| Command | Purpose |
-| --- | --- |
-| `scripts/build_and_run.sh --debug` | Run the packaged executable under LLDB. |
-| `scripts/build_and_run.sh --logs` | Launch and stream logs for the ADBuddy process. |
-| `scripts/build_and_run.sh --telemetry` | Launch and stream logs for the `com.androperator.adbuddy` subsystem. |
-
-Contribution and agent workflow rules are in [AGENTS.md](../AGENTS.md).
-
-## Emulator creation prototype
-
-Normal packaged launches use the pinned catalog-capable helper inside ADBuddy.
-The helper version, URL and checksum are defined in
-[the root dependency manifest](../bundled-dependencies.json), which is copied
-into the app. No global helper installation is required. Node.js 24+ must be
-installed separately for creation and deletion. See
-[the bundle pin and rebuild instructions](../vendor/emulator/README.md).
-
-For local helper development, build the checkout explicitly (`npm ci` and
-`npm run build`), then set **Settings → Emulators → Package folder or CLI**
-to that checkout's absolute path or compiled `dist/cli.js`. Blank selects the
-bundled helper. The Node executable override is independent; blank discovers
-installed Node through PATH, Homebrew, Volta and nvm locations. Node 24+ is required. Invalid paths,
-wrong package identity, protocol mismatch, or missing catalog capabilities fail
-visibly without fallback. Settings displays the checked active version and both
-paths. Reopen Create Emulator after changing settings. Nearby checkouts and
-global helper installations are never selected automatically.
-
-Android SDK tools, images, accepted licenses and SDK-compatible Java remain
-external. Existing SDK, Android user home, AVD home and Java discovery apply.
-Packaging does not download or include Node, build or read the sibling helper
-checkout. SDK tools, images and Java remain external. The rest of ADBuddy does
-not require Node; creation and deletion show actionable errors when it is absent
-or incompatible. A dedicated Node setup UI is deferred.
-
-Run focused checks with:
-
-```sh
-scripts/test.sh ADBuddyTests.EmulatorCreationTests,ADBuddyTests.AppPreferencesTests,ADBuddyTests.AndroidEmulatorServiceTests
-```
-
-In the packaged app, open **Create Emulator**, choose an installed phone or TV
-image, enter a unique disposable name and storage capacity, and create. Verify
-success and list refresh. Verify Create leaves the emulator stopped and Create & Start
-launches it after successful creation. Check duplicate-name and
-invalid-capacity feedback. Verify automatic downloadable catalog loading, offline fallback to installed images, retry, and installed state
-and device-family/ABI selection. A missing image may be downloaded on creation;
-licenses must already be accepted. Do not accept licenses or remove an existing
-user AVD as part of routine testing. Verify missing/unbuilt helper and outdated
-capability errors with explicit path overrides, then restore the previous values.
-
-Use the helper to clean up only the disposable AVD created for validation after
-stopping it. Record actual boot/storage results separately from configured size.
-Native helper cancellation and snapshot-free allocation remain outside this
-prototype. Stopped AVD menus support confirmed deletion through the helper.
-
-Draft validation on Apple Silicon (2026-10-04, before integration onto current main):
-
-- Packaged app built and launched with `scripts/build_and_run.sh --verify`.
-- 32 focused creation, preferences, emulator-service and emulator-store tests passed.
-- Native UI created disposable TV API 36 and Pixel phone API 35 AVDs from installed
-  images. Both launched as standalone emulators and reported `sys.boot_completed=1`.
-- Confirmed duplicate-name protection, remote catalog loading, installed/download
-  labels, and the new AVD's Starting state. Existing running devices stayed available.
-- The TV image reported about 5.8 GB on `/data` with a requested 4 GB configuration;
-  configured storage must not be presented as guaranteed actual capacity.
-- Stopped and deleted only the two disposable AVDs after verification. No image
-  packages or existing user AVDs were removed.
-- Missing-image installation, license failures, Intel execution, and nonstandard
-  runtime installations have not been live-verified by this prototype pass.
-
-Stopped-emulator deletion checks: inspect the action/context menus and cancel the
-named confirmation on existing AVDs. Use only a disposable AVD for a confirmed
-deletion; verify disappearance, shared-image retention, and a visible error when
-the helper refuses deletion. State changes before confirmation must prevent it.
-
-Integration validation (2026-10-10):
-
-- Reapplied the creation, hardware filtering, and stopped-emulator deletion flows
-  from `avd-management-draft` onto a fresh `avd-management` branch from `main`.
-- Packaged build and launch smoke check passed, along with 25 focused creation,
-  preferences, and emulator-store tests.
-- Confirmed the main window exposes Create Emulator alongside the newer device
-  controls. Automated UI interaction was unavailable for completing the sheet
-  checks in this pass; no AVD was created or deleted during integration.
-- The earlier live creation results above belong to the draft validation.
-
-Safe bundled-runtime verification (no SDK calls or AVD mutations):
-
-```sh
-scripts/build_and_run.sh --verify
-ADBUDDY_EMULATOR_TEST_BUNDLE="$PWD/dist/ADBuddy.app" \
-ADBUDDY_EMULATOR_TEST_NODE="$(command -v node)" \
-  scripts/test.sh ADBuddyTests.EmulatorCreationTests
-```
-
-The runtime test uses a restricted PATH, the packaged helper with an explicitly selected external Node, a copied
-local package override, and disposable incompatible helper fixtures. It checks
-version, protocol, package identity and capabilities. Resolver tests also prove
-missing overrides and missing bundled components cannot fall back to a sibling.
-The runtime test skips explicitly when a bundle or external Node path is not supplied.
-
-External Node validation (2026-10-10):
-
-- The app packages only the pinned emulator helper, manifest and license notices.
-  Node downloads, binaries and signing entitlements are removed.
-- Isolated tests cover external Node discovery, explicit overrides, old runtimes,
-  helper protocol/capabilities and absence of Node in the packaged app.
-- No SDK licenses or user emulators are changed by these checks. Native Intel,
-  macOS 14 runtime and Developer ID notarization remain unverified.
-
-## Emulator appearance verification
-
-Run `scripts/test.sh ADBuddyTests.EmulatorTweaksTests,ADBuddyTests.EmulatorCreationTests`
-and `scripts/build_and_run.sh --verify`. Confirm the packaged archive hash matches
-`bundled-dependencies.json` and `codesign --verify --deep --strict dist/ADBuddy.app`.
-
-In Settings → Emulators, verify status and refresh never patch the SDK. Check the
-appearance tag, support/error state, and version/backup information under Details.
-Open Learn More via the button or tag. Verify the linked without/with comparison,
-accessible image descriptions, and that all content fits without scrolling.
-
-Healthy applied tweaks must show Done and Repair without signing controls.
-Repair must reopen fresh signing consent. Original or unhealthy patches must show
-Make Pretty disabled until consent, and unsupported builds must keep it disabled.
-On the supported Apple Silicon build, cancel and verify no SDK change; acknowledge
-signing and apply; restart a test AVD and check its Dock/Cmd-Tab name and device icon.
-Restore via the app and compare the SDK executable with the original vendor hash
-and signature. Reapply only with explicit consent. Keep backup generations and
-unrelated running devices intact.
-
-## Release dependency signing checks
-
-Run `python3 scripts/test_sign_emulator_tweaks.py` on macOS with Node installed
-to validate derived tweaks archives using ad-hoc signing. The checks verify
-upstream integrity validation, unchanged non-native payloads, corrupt-archive
-rejection, and preservation of the original archive when signing fails. They do
-not require a certificate or modify the Android SDK.
-
-## Android Auto verification
-
-The current bundled helper is a locally packed development archive from the
-source commit in `bundled-dependencies.json`; it is not an npm release.
-A public release must replace that pin with a verified published package.
-
-Run the emulator helper's `npm run build` and `npm test`, then
-`scripts/test.sh ADBuddyTests.DesktopHeadUnitTests,ADBuddyTests.EmulatorCreationTests`
-and `scripts/build_and_run.sh --verify`. In the Android Auto panel, verify
-missing-package guidance, installation failures, device selection, Start and
-Stop. With a configured phone, enable its head unit server, unlock it, and
-accept first-connection prompts. Verify the DHU window connects and its owned
-forward disappears after Stop, window close and app quit. Keep unrelated
-forwards and devices intact. Unit checks use fake SDK tools and do not prove
-a real Android Auto handshake.
-
-DHU integration validation (2026-10-14): 39 emulator helper tests passed,
-including a real CLI SIGTERM test with disposable fake SDK executables that
-checks child termination and tunnel cleanup. All 20 focused Swift tests passed
-with packaged-helper runtime verification enabled. The packaged app built and
-launched, and the native Android Auto panel detected the installed SDK DHU.
-No physical phone was connected, so an Android Auto handshake was not verified.
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Choose the phone that will run Android Auto.")
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("On your phone, update Android Auto, enable its developer mode, choose Start head unit server, enable Add new cars to Android Auto, and unlock the screen. Accept connection prompts on the phone.")
+                .fixedSize(horizontal: false, vertical: true)
+            Link("Android Auto setup guide", destination: URL(string: "https://developer.android.com/training/cars/testing/dhu")!)
+            Picker("Phone", selection: $serial) {
+                Text("Choose a device").tag("")
+                ForEach(availableDevices) { device in Text(device.displayName).tag(device.serial) }
+            }
+            .disabled(store.activeSerial != nil)
+            if let status = store.status {
+                Label(status.executableReady ? "Android Auto emulator installed" : "Android Auto emulator needs setup",
+                      systemImage: status.executableReady ? "checkmark.circle" : "arrow.down.circle")
+                if !status.executableReady {
+                    Button("Install Android Auto Emulator") {
+                        store.refresh(sdk: devices.resolvedSDK, configuration: preferences.emulatorHelperConfiguration, install: true)
+                    }
+                    .disabled(store.isBusy || store.activeSerial != nil)
+                    Text("Requires Node.js 24+, SDK-compatible Java and accepted SDK licenses. Downloads Google's SDK package.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            if store.isBusy { ProgressView("Setting up Android Auto…") }
+            if let message = store.message {
+                ScrollView { Text(message).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading) }
+                    .frame(maxHeight: 100)
+            }
+            if let active = store.activeSerial {
+                Text("Android Auto session: \(active)").font(.caption)
+                Text("Waiting for Android Auto or running. The phone must have its head unit server enabled.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 0)
+            HStack {
+                Button("Refresh") { store.refresh(sdk: devices.resolvedSDK, configuration: preferences.emulatorHelperConfiguration) }
+                    .disabled(store.isBusy || store.activeSerial != nil)
+                Spacer()
+                if store.activeSerial != nil {
+                    Button("Stop") { store.stop() }
+                } else {
+                    Button("Start Android Auto") {
+                        store.start(serial: serial, sdk: devices.resolvedSDK, configuration: preferences.emulatorHelperConfiguration)
+                    }
+                    .disabled(store.isBusy || store.status?.executableReady != true || !availableDevices.contains(where: { $0.serial == serial }))
+                    .keyboardShortcut(.defaultAction)
+                }
+            }
+        }
+        .task {
+            serial = store.activeSerial ?? availableDevices.first?.serial ?? ""
+            store.refresh(sdk: devices.resolvedSDK, configuration: preferences.emulatorHelperConfiguration)
+        }
+    }
+}
