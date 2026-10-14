@@ -127,6 +127,8 @@ current product contract; they are not an outstanding implementation plan.
 
 - Offer Android Auto in the Create Android Emulator device-type picker, with
   phone selection, installation and Start/Stop controls in that same window.
+- Keep the device-type picker and session actions visible while setup content scrolls.
+  Display SDK setup progress in the footer without changing the window size.
 - Check and explicitly install Google's SDK Desktop Head Unit package without accepting licenses.
 - Select a usable ADB device and run one DHU session with an allocated ADB tunnel.
 - Explain phone-side Android Auto setup and surface setup and launch failures.

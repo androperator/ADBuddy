@@ -24,7 +24,6 @@ struct EmulatorCreationView: View {
                 .disabled(store.isCreating)
             if store.hardwareType == .androidAuto {
                 AndroidAutoConfigurationView()
-                    .padding(24)
             } else {
                 configurationForm
                     .opacity(store.isReady ? 1 : 0)
