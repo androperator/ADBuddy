@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var isPresentingAndroidAuto = false
     @Environment(\.openWindow) private var openWindow
     @Environment(DeviceStore.self) private var deviceStore
     @Environment(EmulatorStore.self) private var emulatorStore
@@ -94,6 +95,7 @@ struct ContentView: View {
         @Bindable var deviceStore = deviceStore
 
         return contentWithFeedback
+        .sheet(isPresented: $isPresentingAndroidAuto) { DesktopHeadUnitView() }
         .sheet(item: $deviceStore.screenRecordingOptionsDevice) { device in
             ScreenRecordingOptionsView(
                 device: device,
@@ -242,6 +244,12 @@ struct ContentView: View {
                         .foregroundStyle(Color.primary)
                 }
                 .help("Create Android Emulator")
+            }
+
+            ToolbarItem(placement: .primaryAction) {
+                Button { isPresentingAndroidAuto = true } label: {
+                    Label("Android Auto", systemImage: "car")
+                }.help("Android Auto Desktop Head Unit")
             }
 
             if preferences.isDeepLinkLauncherEnabled {

@@ -215,3 +215,26 @@ to validate derived tweaks archives using ad-hoc signing. The checks verify
 upstream integrity validation, unchanged non-native payloads, corrupt-archive
 rejection, and preservation of the original archive when signing fails. They do
 not require a certificate or modify the Android SDK.
+
+## Android Auto verification
+
+The current bundled helper is a locally packed development archive from the
+source commit in `bundled-dependencies.json`; it is not an npm release.
+A public release must replace that pin with a verified published package.
+
+Run the emulator helper's `npm run build` and `npm test`, then
+`scripts/test.sh ADBuddyTests.DesktopHeadUnitTests,ADBuddyTests.EmulatorCreationTests`
+and `scripts/build_and_run.sh --verify`. In the Android Auto panel, verify
+missing-package guidance, installation failures, device selection, Start and
+Stop. With a configured phone, enable its head unit server, unlock it, and
+accept first-connection prompts. Verify the DHU window connects and its owned
+forward disappears after Stop, window close and app quit. Keep unrelated
+forwards and devices intact. Unit checks use fake SDK tools and do not prove
+a real Android Auto handshake.
+
+DHU integration validation (2026-10-14): 39 emulator helper tests passed,
+including a real CLI SIGTERM test with disposable fake SDK executables that
+checks child termination and tunnel cleanup. All 20 focused Swift tests passed
+with packaged-helper runtime verification enabled. The packaged app built and
+launched, and the native Android Auto panel detected the installed SDK DHU.
+No physical phone was connected, so an Android Auto handshake was not verified.

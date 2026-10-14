@@ -446,3 +446,18 @@ decoded to a typed model. The CLI owns SDK validation, locking, backups and patc
 The npm archive is bundled intact to preserve native asset hashes and signatures
 through app packaging. Each command installation is removed afterward; the CLI
 copies the installed naming runtime into its own durable backup generation.
+
+## Android Auto Desktop Head Unit
+
+`DesktopHeadUnitStore` owns app-scoped setup and one cancellable DHU session.
+`DesktopHeadUnitView` presents installation, device selection, setup guidance
+and Start/Stop actions. The store uses `EmulatorCreationService` and the same
+explicit SDK, Node, Java and helper selection as emulator creation, requiring
+the helper's `dhu` capability. Normal app quit awaits session cleanup.
+
+The helper installs `extras;google;auto`, checks the SDK executable and starts
+DHU in its package directory so adjacent libraries resolve. It selects the ADB
+serial, allocates a free host port to device port 5277 and removes only that
+forward after exit or interruption. ProcessRunner cancels the CLI with SIGTERM;
+the CLI terminates its DHU child and awaits forwarding cleanup. A process
+session does not prove an Android Auto handshake.

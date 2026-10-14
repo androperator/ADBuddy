@@ -123,6 +123,16 @@ current product contract; they are not an outstanding implementation plan.
 - When Show taps is enabled, preserve the existing Android setting and restore
   it when the recording finishes.
 
+### Android Auto
+
+- Provide a native Android Auto panel from the main toolbar, separate from AVD creation.
+- Check and explicitly install Google's SDK Desktop Head Unit package without accepting licenses.
+- Select a usable ADB device and run one DHU session with an allocated ADB tunnel.
+- Explain phone-side Android Auto setup and surface setup and launch failures.
+- Stop the owned session and remove its forward on DHU exit, Stop or app quit.
+- Closing the panel retains the session. USB accessory transport, console commands
+  and custom vehicle configuration are deferred.
+
 ### Emulator management
 
 - Offer **Delete Emulator…** in stopped-AVD action and contextual menus. Confirm

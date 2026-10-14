@@ -5,6 +5,7 @@ import SwiftUI
 struct ADBuddyApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @FocusedValue(\.logcatSearchAction) private var logcatSearchAction
+    @State private var desktopHeadUnit = DesktopHeadUnitStore()
     @State private var deviceStore: DeviceStore
     @State private var emulatorStore: EmulatorStore
     @State private var preferences: AppPreferences
@@ -31,6 +32,7 @@ struct ADBuddyApp: App {
         WindowGroup("ADBuddy", id: "main") {
             ContentView()
                 .frame(minWidth: DeviceListLayout.windowWidth)
+                .environment(desktopHeadUnit)
                 .environment(deviceStore)
                 .environment(emulatorStore)
                 .environment(preferences)
@@ -45,7 +47,10 @@ struct ADBuddyApp: App {
                     emulatorStore.start()
                 }
                 .onAppear {
-                    appDelegate.stopDeviceMirrors = { await deviceStore.mirrors.stopAll() }
+                    appDelegate.stopDeviceMirrors = {
+                        await desktopHeadUnit.stopAll()
+                        await deviceStore.mirrors.stopAll()
+                    }
                     appDelegate.setAPKDocumentHandler { fileURLs in
                         guard let fileURL = fileURLs.first else {
                             return
