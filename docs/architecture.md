@@ -462,3 +462,14 @@ serial, allocates a free host port to device port 5277 and removes only that
 forward after exit or interruption. ProcessRunner cancels the CLI with SIGTERM;
 the CLI terminates its DHU child and awaits forwarding cleanup. A process
 session does not prove an Android Auto handshake.
+
+Android Auto launches run through `DesktopHeadUnitInputProtection` using a
+per-process macOS policy inherited by the Node helper and DHU. It denies raw
+HID control and HID device clients, plus direct access to the user and system
+permission brokers. This prevents the installed DHU 2.0 SDL implementation
+from requesting Input Monitoring while opening its HID manager. The GUI app
+remains unsandboxed for SDK discovery; other helper commands are unaffected.
+If protection is unavailable or rejected, launch fails without an unrestricted
+retry. Google's SDK binary and signature are unchanged. Normal window input
+uses Cocoa rather than raw HID access. New direct microphone permission
+requests are also blocked; live voice input remains unverified.

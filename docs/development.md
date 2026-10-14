@@ -257,3 +257,18 @@ On 2026-10-15, temporary local store simulations verified missing-package
 download progress and a long installation error, including scrolling to its
 end. These simulations were removed before the final build; no SDK packages
 or preferences were changed.
+
+## Android Auto input protection
+
+The DHU must not prompt for Input Monitoring. Run
+`scripts/test.sh ADBuddyTests.DesktopHeadUnitTests` to check protected launch
+arguments, failure handling and the real child-process policy. The latter
+compiles a disposable macOS probe and verifies raw HID control is denied and
+`IOHIDRequestAccess` returns false without granting any permission. It never
+reads keystrokes or changes OS privacy settings.
+
+Live startup verification on the installed Google-signed DHU 2.0 (2026-10-15)
+confirmed its Input Monitoring request failed at the blocked permission-broker
+connection and startup reached the ADB connection attempt. A disconnected
+loopback endpoint was used; no phone handshake or voice input was verified.
+The SDK binary was not changed or re-signed.
