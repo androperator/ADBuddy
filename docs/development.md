@@ -288,3 +288,13 @@ and rechecking enabled Start. ADBuddy launched a persistent DHU session under
 input protection. A separate protected DHU verification session completed the
 phone handshake and captured its real dashboard using the DHU screenshot command.
 Maps requested phone-side location access, which was not granted during testing.
+
+## Compact Android Auto readiness UI
+
+Check the ready phone, a stub-only emulator, and a phone with its head-unit
+server stopped. Show only the applicable recovery action, keep Setup help
+collapsed initially, and verify its expansion stays within the scrolling form.
+Return focus after starting the phone server and verify readiness refreshes.
+Close DHU without Stop to check Connection ended and Details; using Stop must
+not show an unexpected-disconnection message. Diagnostics remain available
+during automatic checks until an explicit retry or device selection clears them.

@@ -98,5 +98,11 @@ final class DesktopHeadUnitTests: XCTestCase {
         for _ in 0..<20 where store.activeSerial != nil { await Task.yield() }
         XCTAssertNil(store.activeSerial)
         XCTAssertTrue(store.message?.contains("Android SDK") == true)
+        XCTAssertFalse(store.connectionEnded)
+        let failure = store.message
+        await store.checkDevice(serial: "phone", sdk: nil, clearMessage: false)
+        XCTAssertEqual(store.message, failure)
+        await store.checkDevice(serial: "phone", sdk: nil)
+        XCTAssertNil(store.message)
     }
 }
