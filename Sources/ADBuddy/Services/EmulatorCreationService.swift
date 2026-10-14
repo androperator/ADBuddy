@@ -141,7 +141,23 @@ struct EmulatorCreationService: Sendable {
     }
 
     func call<Value: Decodable & Sendable>(_ arguments: [String]) async throws -> Value {
-        let result = await execute(invocation.node, [invocation.script] + arguments, invocation.environment)
+        let result: ProcessResult
+        if arguments.first == "dhu-start" {
+            guard FileManager.default.isExecutableFile(atPath: DesktopHeadUnitInputProtection.executable) else {
+                throw EmulatorCreationError("Android Auto cannot start because macOS input protection is unavailable. ADBuddy will not launch it without that protection.")
+            }
+            result = await execute(
+                DesktopHeadUnitInputProtection.executable,
+                DesktopHeadUnitInputProtection.arguments(invocation: invocation, command: arguments),
+                invocation.environment
+            )
+            if !result.succeeded, result.standardOutput.isEmpty, !result.wasCancelled {
+                let detail = result.failureDescription ?? String(decoding: result.standardError, as: UTF8.self)
+                throw EmulatorCreationError("Android Auto could not start with macOS input protection. \(String(detail.prefix(1500)))")
+            }
+        } else {
+            result = await execute(invocation.node, [invocation.script] + arguments, invocation.environment)
+        }
         return try Self.decode(result)
     }
 
