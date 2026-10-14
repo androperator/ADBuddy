@@ -9,7 +9,28 @@ struct AndroidAutoConfigurationView: View {
     private var availableDevices: [AndroidDevice] { devices.devices.filter(\.isUsable) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 0) {
+            ScrollView {
+                configuration
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 16)
+            }
+            .clipped()
+            .padding(.top, 12)
+            Divider()
+            actions
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+        }
+        .task {
+            serial = store.activeSerial ?? availableDevices.first?.serial ?? ""
+            store.refresh(sdk: devices.resolvedSDK, configuration: preferences.emulatorHelperConfiguration)
+        }
+    }
+
+    private var configuration: some View {
+        VStack(alignment: .leading, spacing: 12) {
             Text("Choose the phone that will run Android Auto.")
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -33,35 +54,38 @@ struct AndroidAutoConfigurationView: View {
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
-            if store.isBusy { ProgressView("Setting up Android Auto…") }
             if let message = store.message {
-                ScrollView { Text(message).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading) }
-                    .frame(maxHeight: 100)
+                Text(message)
+                    .textSelection(.enabled)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             if let active = store.activeSerial {
                 Text("Android Auto session: \(active)").font(.caption)
                 Text("Waiting for Android Auto or running. The phone must have its head unit server enabled.")
                     .font(.caption).foregroundStyle(.secondary)
             }
-            Spacer(minLength: 0)
-            HStack {
-                Button("Refresh") { store.refresh(sdk: devices.resolvedSDK, configuration: preferences.emulatorHelperConfiguration) }
-                    .disabled(store.isBusy || store.activeSerial != nil)
-                Spacer()
-                if store.activeSerial != nil {
-                    Button("Stop") { store.stop() }
-                } else {
-                    Button("Start Android Auto") {
-                        store.start(serial: serial, sdk: devices.resolvedSDK, configuration: preferences.emulatorHelperConfiguration)
-                    }
-                    .disabled(store.isBusy || store.status?.executableReady != true || !availableDevices.contains(where: { $0.serial == serial }))
-                    .keyboardShortcut(.defaultAction)
-                }
-            }
         }
-        .task {
-            serial = store.activeSerial ?? availableDevices.first?.serial ?? ""
-            store.refresh(sdk: devices.resolvedSDK, configuration: preferences.emulatorHelperConfiguration)
+    }
+
+    private var actions: some View {
+        HStack {
+            if store.isBusy {
+                ProgressView("Setting up Android Auto…")
+                    .controlSize(.small)
+            } else {
+                Button("Refresh") { store.refresh(sdk: devices.resolvedSDK, configuration: preferences.emulatorHelperConfiguration) }
+                    .disabled(store.activeSerial != nil)
+            }
+            Spacer()
+            if store.activeSerial != nil {
+                Button("Stop") { store.stop() }
+            } else {
+                Button("Start Android Auto") {
+                    store.start(serial: serial, sdk: devices.resolvedSDK, configuration: preferences.emulatorHelperConfiguration)
+                }
+                .disabled(store.isBusy || store.status?.executableReady != true || !availableDevices.contains(where: { $0.serial == serial }))
+                .keyboardShortcut(.defaultAction)
+            }
         }
     }
 }

@@ -244,3 +244,16 @@ The separate toolbar entry is removed. Native UI checks confirmed the Phone
 form and Android Auto installation/device/start controls in the same window.
 20 focused tests passed; the unchanged packaged-helper runtime test was skipped
 in this layout pass and passed in the prior integration verification.
+
+## Android Auto setup layout
+
+Verify SDK setup in the fixed 600×400 Create Android Emulator window using
+a missing-package status with setup busy. The device-type picker and footer
+progress must remain visible. Long setup errors scroll inside the content
+region, with no overlap of the picker or session actions. Check the installed
+state and ordinary Phone form as well.
+
+On 2026-10-15, temporary local store simulations verified missing-package
+download progress and a long installation error, including scrolling to its
+end. These simulations were removed before the final build; no SDK packages
+or preferences were changed.
