@@ -54,7 +54,7 @@ Manage existing emulators alongside your connected devices. Start, stop, cold bo
 
 *Emulator creation and deletion require Node.js 24+. [Setup details →](docs/usage.md#create-and-manage-emulators)*
 
-## Pretty Adnroid emulator icons and names
+## Pretty Android emulator icons and names
 
 Three identical icons named `qemu-system-aarch64`? Nah. Give each emulator a device icon and its AVD name in the Dock and app switcher.
 
