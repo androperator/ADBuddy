@@ -24,39 +24,27 @@ struct EmulatorCreationView: View {
                 .disabled(store.isCreating)
             if store.hardwareType == .androidAuto {
                 AndroidAutoConfigurationView()
+            } else if isInitiallyLoading {
+                ProgressView("Loading emulator options…")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if !store.isReady {
+                if store.needsNodeRuntime {
+                    nodeSetup
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if let message = store.errorMessage {
+                    setupError(message)
+                }
             } else {
                 configurationForm
-                    .opacity(store.isReady ? 1 : 0)
-                    .allowsHitTesting(store.isReady)
-                    .accessibilityHidden(!store.isReady)
-                    .overlay {
-                        if !store.isReady, store.errorMessage != nil {
-                            if store.needsNodeRuntime {
-                                nodeSetup
-                            } else {
-                                Text("Emulator options couldn’t be loaded.")
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                    }
                     .padding(24)
                 Spacer(minLength: 0)
                 Divider()
-                    .opacity(isInitiallyLoading ? 0 : 1)
                 footer
                     .padding(.horizontal, 24)
                     .padding(.vertical, 8)
-                    .opacity(isInitiallyLoading ? 0 : 1)
-                    .allowsHitTesting(!isInitiallyLoading)
-                    .accessibilityHidden(isInitiallyLoading)
             }
         }
         .frame(width: 600, height: 400)
-        .overlay {
-            if isInitiallyLoading, store.hardwareType != .androidAuto {
-                ProgressView("Loading emulator options…")
-            }
-        }
         .onChange(of: store.isCreating) { _, creating in creationStateChanged(creating) }
         .onExitCommand {
             if !store.isCreating { dismiss() }
@@ -70,6 +58,28 @@ struct EmulatorCreationView: View {
         .onChange(of: store.createdName) { _, name in
             if name != nil { dismiss() }
         }
+    }
+
+    private func setupError(_ message: String) -> some View {
+        let missingTools = store.errorKind == .sdkCommandLineTools
+        return VStack(alignment: .leading, spacing: 12) {
+            Text(missingTools ? "Android SDK Command-line Tools required" : "Couldn’t load emulator options")
+                .font(.title3.weight(.semibold))
+            ScrollView {
+                Text(message)
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            if missingTools {
+                Link("SDK Manager instructions", destination: URL(string: "https://developer.android.com/studio/intro/update.html#sdk-manager")!)
+            }
+            HStack {
+                Button("Check Again") { Task { await load() } }
+                Button("Settings…") { openSettings() }
+            }
+        }
+        .padding(24)
     }
 
     private var deviceTypePicker: some View {
@@ -164,31 +174,34 @@ struct EmulatorCreationView: View {
                 ProgressView().controlSize(.small)
                 Text(store.activity)
             }
-        } else if store.errorMessage != nil, !store.needsNodeRuntime {
+        } else if let message = store.errorMessage {
             VStack(alignment: .leading, spacing: 4) {
-                Text(store.isReady ? "Couldn’t create emulator." : "Emulator tools need attention.")
-                HStack {
-                    Button("Details") { showsErrorDetails = true }
-                        .popover(isPresented: $showsErrorDetails) {
-                            ScrollView {
-                                Text(store.errorMessage ?? "").textSelection(.enabled)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }.padding().frame(width: 360, height: 180)
-                        }
-                    if !store.isReady {
-                        Button("Settings…") { openSettings() }
-                        Button("Retry") { Task { await load() } }
-                    }
-                }.buttonStyle(.link)
+                Text("Couldn’t create emulator.")
+                errorDetails(message)
             }
-        } else if store.catalogError != nil {
+        } else if let message = store.catalogError {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Couldn’t load more images.")
-                Button("Retry") { Task { await store.loadDownloadableImages() } }.buttonStyle(.link)
+                HStack {
+                    errorDetails(message)
+                    Button("Retry") { Task { await store.loadDownloadableImages() } }.buttonStyle(.link)
+                }
             }
         } else if let message = store.validationMessage(existingNames: existingNames), store.isReady {
             Text(message)
         }
+    }
+
+    private func errorDetails(_ message: String) -> some View {
+        Button("Details") { showsErrorDetails = true }
+            .buttonStyle(.link)
+            .popover(isPresented: $showsErrorDetails) {
+                ScrollView {
+                    Text(message)
+                        .textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }.padding().frame(width: 360, height: 180)
+            }
     }
 
     private var footer: some View {
@@ -201,15 +214,13 @@ struct EmulatorCreationView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 36)
-                if store.isReady || (store.errorMessage != nil && !store.needsNodeRuntime) {
-                    HStack(spacing: 12) {
-                        Button("Create") { create(startAfterCreation: false) }
-                        Button("Create & Start") { create(startAfterCreation: true) }
-                            .keyboardShortcut(.defaultAction)
-                    }
-                    .disabled(store.isBusy || !store.isReady || store.validationMessage(existingNames: existingNames) != nil)
-                    .help(store.validationMessage(existingNames: existingNames) ?? "Create emulator")
+                HStack(spacing: 12) {
+                    Button("Create") { create(startAfterCreation: false) }
+                    Button("Create & Start") { create(startAfterCreation: true) }
+                        .keyboardShortcut(.defaultAction)
                 }
+                .disabled(store.isBusy || store.validationMessage(existingNames: existingNames) != nil)
+                .help(store.validationMessage(existingNames: existingNames) ?? "Create emulator")
             }.frame(height: 36)
     }
 

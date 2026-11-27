@@ -426,7 +426,13 @@ PATH, Homebrew, Volta and nvm, or selected through its explicit override. Missin
 fallback. Settings displays the validated active version and paths, and successful
 checks log the same details. Overrides persist through `AppPreferences`.
 The helper receives the same SDK root and ADB executable as normal app operations.
-Java uses its explicit override, inherited JAVA_HOME, or Android Studio's runtime.
+Command-line tools are resolved as a pair from the selected SDK, preferring
+`cmdline-tools/latest` and then the newest executable versioned pair. The creation
+window reports the selected SDK and missing tools with installation instructions.
+Java uses its explicit override, inherited JAVA_HOME, or Android Studio's runtime
+in system or user Applications. If the helper cannot recognize the SDK image
+table, ADBuddy can read it directly from sdkmanager, including carriage-return
+progress output before the table headings.
 See [bundle provenance](../vendor/emulator/README.md) for immutable helper bytes,
 published package integrity, source revision and license notices.
 
