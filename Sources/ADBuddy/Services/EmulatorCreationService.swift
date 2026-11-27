@@ -68,14 +68,28 @@ struct EmulatorHelperInvocation: Sendable {
         childEnvironment["ANDROID_SDK_ROOT"] = sdk.rootPath
         childEnvironment["ADB_PATH"] = sdk.adbPath
         childEnvironment["EMULATOR_PATH"] = "\(sdk.rootPath)/emulator/emulator"
-        childEnvironment["SDKMANAGER_PATH"] = "\(sdk.rootPath)/cmdline-tools/latest/bin/sdkmanager"
-        childEnvironment["AVDMANAGER_PATH"] = "\(sdk.rootPath)/cmdline-tools/latest/bin/avdmanager"
+        let commandLineTools = URL(fileURLWithPath: sdk.rootPath).appendingPathComponent("cmdline-tools")
+        let latest = commandLineTools.appendingPathComponent("latest/bin")
+        let versions = (try? files.contentsOfDirectory(atPath: commandLineTools.path)) ?? []
+        let versionedBins = versions
+            .filter { $0.first?.isNumber == true }
+            .sorted { $0.compare($1, options: .numeric) == .orderedDescending }
+            .map { commandLineTools.appendingPathComponent("\($0)/bin") }
+        let tools = ["sdkmanager", "avdmanager"]
+        let toolDirectory = ([latest] + versionedBins).first { bin in
+            tools.allSatisfy { files.isExecutableFile(atPath: bin.appendingPathComponent($0).path) }
+        } ?? latest
+        childEnvironment["SDKMANAGER_PATH"] = toolDirectory.appendingPathComponent("sdkmanager").path
+        childEnvironment["AVDMANAGER_PATH"] = toolDirectory.appendingPathComponent("avdmanager").path
         let java = configuration.javaHome.trimmingCharacters(in: .whitespacesAndNewlines)
         if !java.isEmpty {
             childEnvironment["JAVA_HOME"] = expanded(java)
         } else if childEnvironment["JAVA_HOME"] == nil {
-            let bundledJava = "/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-            if files.isExecutableFile(atPath: "\(bundledJava)/bin/java") { childEnvironment["JAVA_HOME"] = bundledJava }
+            let applications = [URL(fileURLWithPath: "/Applications"), home.appendingPathComponent("Applications")]
+            let runtimes = applications.map { $0.appendingPathComponent("Android Studio.app/Contents/jbr/Contents/Home") }
+            childEnvironment["JAVA_HOME"] = runtimes.first {
+                files.isExecutableFile(atPath: $0.appendingPathComponent("bin/java").path)
+            }?.path
         }
         return Self(node: node, script: URL(fileURLWithPath: script).resolvingSymlinksInPath().path, environment: childEnvironment)
     }
@@ -111,6 +125,16 @@ struct EmulatorCreationService: Sendable {
     }
 
     func profiles() async throws -> [EmulatorHardwareProfile] {
+        let missingTools = ["AVDMANAGER_PATH", "SDKMANAGER_PATH"]
+            .compactMap { invocation.environment[$0] }
+            .filter { !FileManager.default.isExecutableFile(atPath: $0) }
+        if !missingTools.isEmpty {
+            let sdk = invocation.environment["ANDROID_HOME"] ?? ""
+            throw EmulatorCreationError(
+                "In Android Studio, open SDK Manager → SDK Tools and install Android SDK Command-line Tools (latest) for this SDK. Then choose Check Again.\n\nSDK: \(sdk)\nMissing or not executable: \(missingTools.joined(separator: ", "))",
+                kind: .sdkCommandLineTools
+            )
+        }
         struct Result: Decodable, Sendable { let profiles: [EmulatorHardwareProfile] }
         let result: Result = try await call(["profiles"])
         return result.profiles
@@ -118,8 +142,22 @@ struct EmulatorCreationService: Sendable {
 
     func images(includeDownloads: Bool) async throws -> [EmulatorSystemImage] {
         struct Result: Decodable, Sendable { let images: [EmulatorSystemImage] }
-        let result: Result = try await call(includeDownloads ? ["images"] : ["images", "--installed"])
-        return result.images
+        do {
+            let result: Result = try await call(includeDownloads ? ["images"] : ["images", "--installed"])
+            return result.images
+        } catch let error as EmulatorCreationError
+            where error.message == "Unrecognized system image catalog; expected sdkmanager package sections" {
+            guard let sdkManager = invocation.environment["SDKMANAGER_PATH"] else { throw error }
+            // Some SDK versions terminate progress updates with CR immediately before the table heading.
+            let arguments = includeDownloads ? ["--list"] : ["--list_installed"]
+            let result = await execute(sdkManager, arguments, invocation.environment)
+            guard result.succeeded else {
+                let detail = result.failureDescription ?? String(decoding: result.standardError, as: UTF8.self)
+                throw EmulatorCreationError("Couldn’t list Android system images. \(detail)")
+            }
+            let output = String(decoding: result.standardOutput, as: UTF8.self)
+            return try SDKManagerImageCatalog.parse(output, includeDownloads: includeDownloads)
+        }
     }
 
     func create(_ request: EmulatorCreationRequest) async throws {

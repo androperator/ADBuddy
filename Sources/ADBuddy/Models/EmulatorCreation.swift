@@ -100,7 +100,7 @@ struct EmulatorCreationRequest: Sendable {
 
 struct EmulatorCreationError: LocalizedError, Sendable {
     let message: String
-    enum Kind: Sendable { case general, nodeRuntime }
+    enum Kind: Sendable { case general, nodeRuntime, sdkCommandLineTools }
     let kind: Kind
     init(_ message: String, kind: Kind = .general) {
         self.message = message

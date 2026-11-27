@@ -36,6 +36,48 @@ final class EmulatorCreationTests: XCTestCase {
         }
     }
 
+    @MainActor
+    func testMissingCommandLineToolsShowSetupAndRetryUsesVersionedTools() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        let helper = root.appendingPathComponent("cli.js")
+        try Data().write(to: helper)
+        let sdk = AndroidSDK(rootPath: root.path, adbPath: "/adb", source: .standardLocation)
+        let configuration = EmulatorHelperConfiguration(helperPath: helper.path, nodePath: "/bin/sh", javaHome: "")
+        let responses = CatalogResponses()
+        let store = EmulatorCreationStore { configuration, sdk in
+            let invocation = try EmulatorHelperInvocation.resolve(configuration: configuration, sdk: sdk)
+            return EmulatorCreationService(invocation: invocation) { _, arguments, environment in
+                if arguments.last == "profiles" {
+                    XCTAssertEqual(environment["AVDMANAGER_PATH"], root.appendingPathComponent("cmdline-tools/19.0/bin/avdmanager").path)
+                    XCTAssertEqual(environment["SDKMANAGER_PATH"], root.appendingPathComponent("cmdline-tools/19.0/bin/sdkmanager").path)
+                }
+                return await responses.respond(arguments)
+            }
+        }
+        await store.load(configuration: configuration, sdk: sdk)
+        XCTAssertEqual(store.errorKind, .sdkCommandLineTools)
+        XCTAssertTrue(store.errorMessage?.contains(root.path) == true)
+        XCTAssertTrue(store.errorMessage?.contains("avdmanager") == true)
+        XCTAssertTrue(store.errorMessage?.contains("sdkmanager") == true)
+        XCTAssertFalse(store.isReady)
+
+        for package in ["latest", "19.0", "9.0"] {
+            let bin = root.appendingPathComponent("cmdline-tools/\(package)/bin")
+            try FileManager.default.createDirectory(at: bin, withIntermediateDirectories: true)
+            for tool in package == "latest" ? ["sdkmanager"] : ["sdkmanager", "avdmanager"] {
+                let executable = bin.appendingPathComponent(tool)
+                try Data().write(to: executable)
+                try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: executable.path)
+            }
+        }
+        await store.load(configuration: configuration, sdk: sdk)
+        XCTAssertTrue(store.isReady)
+        XCTAssertNil(store.errorKind)
+        XCTAssertNil(store.errorMessage)
+    }
+
     func testValidationPreventsReplacementAndInvalidCapacity() throws {
         let request = EmulatorCreationRequest(name: "TV_Dev", profile: profile, image: image, storageGB: 24)
         try request.validate(existingNames: [])
@@ -51,6 +93,34 @@ final class EmulatorCreationTests: XCTestCase {
         let image = EmulatorSystemImage(id: "image", platform: "android-37.2", apiLevel: 37,
             tag: "google_apis_playstore_ps16k", abi: "arm64-v8a", description: "->", installed: true)
         XCTAssertEqual(image.title, "API 37.2 · Google Play · 16 KB pages")
+    }
+
+    func testImageCatalogRetriesWhenSDKManagerPrintsProgressBeforeHeading() async throws {
+        let output = "Loading local repository...\rInstalled packages:\r\n"
+            + "system-images;android-37.2;google_apis_ps16k;arm64-v8a | 7 | Installed image | system-images/android-37.2\n"
+            + "Available Packages:\n"
+            + "system-images;android-37.2;google_apis_ps16k;arm64-v8a | 8 | Updated image\n"
+            + "system-images;android-37.2;google_apis_playstore;arm64-v8a | 7 | Downloadable image\n"
+        let service = EmulatorCreationService(invocation: .init(
+            node: "/node", script: "/helper", environment: ["SDKMANAGER_PATH": "/sdkmanager"]
+        )) { executable, arguments, _ in
+            let text: String
+            if executable == "/node" {
+                text = #"{"protocolVersion":1,"ok":false,"error":{"message":"Unrecognized system image catalog; expected sdkmanager package sections"}}"#
+            } else {
+                XCTAssertEqual(executable, "/sdkmanager")
+                XCTAssertTrue([["--list_installed"], ["--list"]].contains(arguments))
+                text = output
+            }
+            return ProcessResult(standardOutput: Data(text.utf8), standardError: Data(), exitStatus: 0,
+                                 durationMilliseconds: 0, failureDescription: nil, wasCancelled: false)
+        }
+        let installed = try await service.images(includeDownloads: false)
+        XCTAssertEqual(installed.map(\.description), ["Installed image"])
+        XCTAssertEqual(installed.first?.apiLevel, 37)
+        let all = try await service.images(includeDownloads: true)
+        XCTAssertEqual(all.map(\.description), ["Downloadable image", "Installed image"])
+        XCTAssertEqual(all.map(\.installed), [false, true])
     }
 
     func testHardwareTypesSeparateSDKProfiles() {
